@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const blogSchema = mongoose.model(
+const blogSchema = mongoose.Schema(
   {
     title: {
       type: String,
