@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import User from "../models/User.js";
+import User from "../models/userModel.js";
 import { generateToken } from "../utils/jwt.js";
 
 // Register User
@@ -80,8 +80,7 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    const token = generateToken(user._id, process.env.JWT_SECRET, "7d");
-
+    const token = generateToken(user._id, process.env.secret_key, "7d");
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
