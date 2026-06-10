@@ -7,6 +7,10 @@ const blogSchema = mongoose.Schema(
       required: [true, "Title is required"],
       trim: true,
     },
+    subtitle: {
+      type: String,
+      trim: true,
+    },
     content: {
       type: String,
       required: [true, "Content is required"],
@@ -35,14 +39,12 @@ const blogSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
-
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
-
     comments: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -55,4 +57,6 @@ const blogSchema = mongoose.Schema(
   },
 );
 
-export default mongoose.model("Blog", blogSchema);
+const Blog = mongoose.model("Blog", blogSchema);
+
+export default Blog;
