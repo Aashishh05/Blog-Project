@@ -9,7 +9,7 @@ const commentSchema = mongoose.Schema(
     },
     User: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "user",
       required: true,
     },
     comment: {
@@ -21,4 +21,5 @@ const commentSchema = mongoose.Schema(
   { timestamps: true },
 );
 
-export default mongoose.model("Comment", commentSchema);
+const Comment =  mongoose.model("Comment", commentSchema);
+export default Comment;
