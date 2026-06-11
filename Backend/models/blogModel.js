@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const blogSchema = mongoose.Schema(
+const blogSchema =new mongoose.Schema(
   {
     title: {
       type: String,
@@ -20,19 +20,9 @@ const blogSchema = mongoose.Schema(
       default: "",
     },
     category: {
-      type: String,
-      required: [true, "Category is required"],
-      enum: [
-        "Technology",
-        "Programming",
-        "Education",
-        "Travel",
-        "Business",
-        "Sports",
-        "Health",
-        "Lifestyle",
-        "Other",
-      ],
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Category",
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
