@@ -1,4 +1,5 @@
 import Blog from "../models/blogModel.js";
+import fs from "fs";
 
 export const createBlog = async (req, res) => {
   try {
@@ -15,7 +16,7 @@ export const createBlog = async (req, res) => {
       title,
       subtitle,
       content,
-      image:req.file.filename,
+      image: req.file.filename,
       category,
       author: req.user._id,
     });
@@ -97,13 +98,13 @@ export const updateBlog = async (req, res) => {
       });
     }
 
-    const {title,content,category} = req.body;
+    const { title, content, category } = req.body;
 
-    if(title) blog.title = title;
-    if(content) blog.content = content;
-    if(category) blog.category = category;
+    if (title) blog.title = title;
+    if (content) blog.content = content;
+    if (category) blog.category = category;
 
-    if(req.file) {
+    if (req.file) {
       blog.image = req.file.filename;
     }
 
@@ -132,6 +133,17 @@ export const deleteBlog = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Blog not found",
+      });
+    }
+
+    // delete image from uploads folder
+    if (blog.image) {
+      const imagePath = `uploads/${blog.image}`;
+
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+          console.log("Failed to delete image:", err.message);
+        }
       });
     }
 
