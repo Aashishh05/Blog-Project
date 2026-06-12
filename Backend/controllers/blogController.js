@@ -57,7 +57,7 @@ export const getAllBlogs = async (req, res) => {
       blogs,
       pagination: {
         totalBlogs,
-        totalPages,
+        totalPages, 
         currentPage: page,
         limit,
         hasNextPage: page < totalPages,
