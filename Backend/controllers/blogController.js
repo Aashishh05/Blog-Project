@@ -2,7 +2,7 @@ import Blog from "../models/blogModel.js";
 
 export const createBlog = async (req, res) => {
   try {
-    const { title, subtitle, content, image, category } = req.body;
+    const { title, subtitle, content, category } = req.body;
 
     if (!title || !content || !category) {
       return res.status(400).json({
@@ -15,7 +15,7 @@ export const createBlog = async (req, res) => {
       title,
       subtitle,
       content,
-      image,
+      image:req.file.filename,
       category,
       author: req.user._id,
     });
@@ -97,10 +97,17 @@ export const updateBlog = async (req, res) => {
       });
     }
 
-    const updatedBlog = await Blog.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const {title,content,category} = req.body;
+
+    if(title) blog.title = title;
+    if(content) blog.content = content;
+    if(category) blog.category = category;
+
+    if(req.file) {
+      blog.image = req.file.filename;
+    }
+
+    await blog.save();
 
     res.status(200).json({
       success: true,
