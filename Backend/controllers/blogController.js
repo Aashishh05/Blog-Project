@@ -36,13 +36,33 @@ export const createBlog = async (req, res) => {
 
 export const getAllBlogs = async (req, res) => {
   try {
+    let { page = 1, limit = 5 } = req.query;
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    const skip = (page - 1) * limit;
     const blogs = await Blog.find()
       .populate("author", "fullName email")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalBlogs = await Blog.countDocuments();
+
+    const totalPages = Math.ceil(totalBlogs / limit);
 
     res.status(200).json({
       success: true,
       blogs,
+      pagination: {
+        totalBlogs,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
     });
   } catch (error) {
     res.status(500).json({
