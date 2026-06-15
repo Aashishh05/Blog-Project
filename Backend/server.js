@@ -3,6 +3,7 @@ import connectDB from "./config/db.js";
 import dotenv from "dotenv";
 import mainRoutes from "./routes/mainRoutes.js"
 import cookieParser from "cookie-parser";
+import cloudinary from "./config/cloudinary.js";
 dotenv.config();
 
 connectDB();

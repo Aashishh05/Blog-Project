@@ -16,8 +16,8 @@ const blogSchema =new mongoose.Schema(
       required: [true, "Content is required"],
     },
     image: {
-      type: String,
-      default: "",
+      url:String,
+      public_id:String,
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,

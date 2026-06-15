@@ -1,5 +1,8 @@
 import Blog from "../models/blogModel.js";
 import fs from "fs";
+import UploadToCloudinary from "../utils/cloudinaryUploads.js";
+import DeleteFromCloudinary from "../utils/cloudinaryDelete.js";
+import cloudinary from "../config/cloudinary.js";
 
 export const createBlog = async (req, res) => {
   try {
@@ -12,11 +15,17 @@ export const createBlog = async (req, res) => {
       });
     }
 
+    let image = {};
+
+    if (req.file) {
+      image = await UploadToCloudinary(req.file.path, "Blog");
+    }
+
     const blog = await Blog.create({
       title,
       subtitle,
       content,
-      image: req.file.filename,
+      image,
       category,
       author: req.user._id,
     });
@@ -33,7 +42,6 @@ export const createBlog = async (req, res) => {
     });
   }
 };
-
 export const getAllBlogs = async (req, res) => {
   try {
     let { page = 1, limit = 5 } = req.query;
@@ -57,7 +65,7 @@ export const getAllBlogs = async (req, res) => {
       blogs,
       pagination: {
         totalBlogs,
-        totalPages, 
+        totalPages,
         currentPage: page,
         limit,
         hasNextPage: page < totalPages,
@@ -118,15 +126,18 @@ export const updateBlog = async (req, res) => {
       });
     }
 
+    if (req.file) {
+      if (blog.image?.public_id) {
+        await DeleteFromCloudinary(blog.image.public_id);
+      }
+      blog.image = await UploadToCloudinary(req.file.path);
+    }
+
     const { title, content, category } = req.body;
 
     if (title) blog.title = title;
     if (content) blog.content = content;
     if (category) blog.category = category;
-
-    if (req.file) {
-      blog.image = req.file.filename;
-    }
 
     await blog.save();
 
@@ -156,18 +167,25 @@ export const deleteBlog = async (req, res) => {
       });
     }
 
-    // delete image from uploads folder
-    if (blog.image) {
-      const imagePath = `uploads/${blog.image}`;
 
-      fs.unlink(imagePath, (err) => {
-        if (err) {
-          console.log("Failed to delete image:", err.message);
-        }
-      });
+    if(blog.image?.public_id){
+      await DeleteFromCloudinary(blog.image.public_id)
     }
 
-    await Blog.findByIdAndDelete(id);
+    await blog.deleteOne()
+
+    // // delete image from uploads folder
+    // if (blog.image) {
+    //   const imagePath = `uploads/${blog.image}`;
+
+    //   fs.unlink(imagePath, (err) => {
+    //     if (err) {
+    //       console.log("Failed to delete image:", err.message);
+    //     }
+    //   });
+    // }
+
+    // await Blog.findByIdAndDelete(id);
 
     res.status(200).json({
       success: true,
