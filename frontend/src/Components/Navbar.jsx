@@ -13,7 +13,7 @@ const Navbar = () => {
         <div className="absolute top-1/3 -right-60 w-96 h-96 bg-gradient-to-br from-blue-300/10 to-purple-300/5 rounded-full blur-3xl"></div>
       </div>
 
-      <header className="fixed top-0 w-full z-50 backdrop-blur-md bg-white/70 border-b border-gray-200/50">
+      <header className="fixed top-0 w-full z-50 backdrop-blur-md shadow-2xs bg-white/70  border border-gray-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 lg:h-20">
             <NavLink
