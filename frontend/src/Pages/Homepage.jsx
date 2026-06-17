@@ -91,7 +91,7 @@ const Homepage = () => {
 
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <Link
-              to="/blogs"
+              to="/blog"
               className="inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors"
             >
               Start Reading
@@ -136,7 +136,7 @@ const Homepage = () => {
 
               <div className="flex items-center gap-4">
                 <Link
-                  to="/blog/1"
+                  to="/blogdetails"
                   className="font-semibold text-slate-900 hover:text-teal-600 transition-colors flex items-center gap-2"
                 >
                   Read Article
@@ -182,7 +182,7 @@ const Homepage = () => {
             {articles.map((article) => (
               <Link
                 key={article.id}
-                to={`/blog/${article.id}`}
+                to={`/blogdetails`}
                 className="group flex flex-col h-full"
               >
                 {/* Card Container */}

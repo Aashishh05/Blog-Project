@@ -45,7 +45,7 @@ const Navbar = () => {
               </NavLink>
 
               <NavLink
-                to="/blogs"
+                to="/blogdetails"
                 className={({ isActive }) =>
                   `relative group text-sm transition-colors duration-300 ${
                     isActive
