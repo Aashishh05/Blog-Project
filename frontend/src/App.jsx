@@ -5,6 +5,7 @@ import Login from "./Pages/User/Login";
 import Signup from "./Pages/User/Signup";
 import Homepage from "./Pages/Homepage";
 import Blogdetails from "./Pages/Blogdetails";
+import BlogForm from "./Pages/Admin/BlogForm";
 const App = () => {
   return (
     <div>
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/blogdetails" element={<Blogdetails />} />
+        <Route path="/blogform" element={<BlogForm />} />
       </Routes>
     </div>
   );
