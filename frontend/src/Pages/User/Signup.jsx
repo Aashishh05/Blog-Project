@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import Navbar from "../../Components/Navbar";
+import axios from "axios";
 
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
@@ -14,7 +15,6 @@ const SignupSchema = Yup.object().shape({
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
-  role: Yup.string().required("Role is required"),
 });
 
 const Signup = () => {
@@ -55,12 +55,29 @@ const Signup = () => {
                 fullName: "",
                 email: "",
                 password: "",
-                role: "",
               }}
               validationSchema={SignupSchema}
-              onSubmit={() => {}}
+              onSubmit={async (values, { resetForm }) => {
+                try {
+                  const res = await axios.post(
+                    `http://localhost:5000/api/auth/register`,
+                    values,
+                  );
+                  console.log(res);
+                  resetForm();
+                } catch (error) {
+                  console.log("DATA:", error.response?.data);
+                }
+              }}
             >
-              {({ handleChange, handleSubmit, values, errors, touched }) => (
+              {({
+                handleChange,
+                handleSubmit,
+                handleBlur,
+                values,
+                errors,
+                touched,
+              }) => (
                 <>
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
@@ -75,6 +92,7 @@ const Signup = () => {
                           name="fullName"
                           value={values.fullName}
                           onChange={handleChange}
+                          onBlur={handleBlur}
                           placeholder="John Doe"
                           className="w-full pl-11 pr-4 py-3 text-sm bg-white/60 border border-slate-200 rounded-lg focus:ring-1 focus:ring-cyan-500 outline-none"
                         />
@@ -99,6 +117,7 @@ const Signup = () => {
                           name="email"
                           value={values.email}
                           onChange={handleChange}
+                          onBlur={handleBlur}
                           placeholder="your@email.com"
                           className="w-full pl-11 pr-4 py-3 text-sm bg-white/60 border border-slate-200 rounded-lg focus:ring-1 focus:ring-cyan-500 outline-none"
                         />
@@ -124,6 +143,7 @@ const Signup = () => {
                           name="password"
                           value={values.password}
                           onChange={handleChange}
+                          onBlur={handleBlur}
                           placeholder="Enter password"
                           className="w-full pl-11 pr-12 py-3 text-sm bg-white/60 border border-slate-200 rounded-lg focus:ring-1 focus:ring-cyan-500 outline-none"
                         />
@@ -144,32 +164,12 @@ const Signup = () => {
                       )}
                     </div>
 
-                    <div>
-                      <label className="text-sm font-semibold text-slate-900">
-                        Role
-                      </label>
-
-                      <select
-                        name="role"
-                        value={values.role}
-                        onChange={handleChange}
-                        className="w-full mt-2 px-4 py-3 text-sm bg-white/60 border border-slate-200 rounded-lg focus:ring-1 focus:ring-cyan-500 outline-none"
-                      >
-                        <option value="">Select role</option>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                      </select>
-
-                      {touched.role && errors.role && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {errors.role}
-                        </p>
-                      )}
-                    </div>
-
                     <button
                       type="submit"
-                      className="w-full py-3 mt-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/40 transition-all duration-300"
+                      onClick={() => console.log("Button clicked")}
+                      className="w-full py-3 mt-2 scale-105 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg
+  hover:shadow-lg hover:shadow-cyan-500/40 transition-all duration-300
+  active:scale-95 active:shadow-none"
                     >
                       Sign Up
                     </button>
@@ -179,7 +179,7 @@ const Signup = () => {
             </Formik>
 
             <p className="text-center text-slate-700 mt-6">
-              Already have an account?{" "}
+              Already have an account?
               <Link
                 to="/login"
                 className="text-blue-600 font-semibold hover:underline"
@@ -188,8 +188,8 @@ const Signup = () => {
               </Link>
             </p>
             <p className="text-center text-xs text-slate-500 mt-6">
-              By registering, you agree to our{" "}
-              <span className="underline">Terms</span> and{" "}
+              By registering, you agree to our
+              <span className="underline">Terms</span> and
               <span className="underline">Privacy Policy</span>
             </p>
           </div>

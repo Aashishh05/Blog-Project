@@ -6,6 +6,7 @@ import Navbar from "../../Components/Navbar";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
@@ -20,7 +21,6 @@ const Login = () => {
   const nav = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
-  
   return (
     <>
       <Navbar />
@@ -33,9 +33,7 @@ const Login = () => {
 
       <div className="min-h-screen flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-
           <div className="backdrop-blur-xl bg-white/70 border border-gray-200 rounded-2xl p-8 lg:p-10 shadow-sm hover:shadow-2xl hover:scale-[1.03] transition-all duration-300 ease-out">
-
             <div className="mb-6">
               <button
                 onClick={() => nav("/")}
@@ -55,17 +53,22 @@ const Login = () => {
             <Formik
               initialValues={{ email: "", password: "" }}
               validationSchema={LoginSchema}
-              onSubmit={() => {}}
+              onSubmit={async (values) => {
+                try {
+                  const res = await axios.post(
+                    `http://localhost:5000/api/auth/login`,
+                    values,
+                  );
+                  console.log(res.data);
+                  nav('/')
+                } catch (error) {
+                  console.log("STATUS:", error.response?.status);
+                  console.log("DATA:", error.response?.data);
+                }
+              }}
             >
-              {({
-                handleChange,
-                handleSubmit,
-                values,
-                errors,
-                touched,
-              }) => (
+              {({ handleChange, handleSubmit, values, errors, touched }) => (
                 <form onSubmit={handleSubmit} className="space-y-5">
-
                   <div>
                     <label className="text-sm font-semibold text-slate-900">
                       Email Address
@@ -139,7 +142,7 @@ const Login = () => {
 
                   <button
                     type="submit"
-                    className="w-full py-3 mt-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/40 transition-all duration-300"
+                    className="w-full py-3 mt-2 scale-105 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/40 transition-all duration-300 active:scale-95 active:shadow-none"
                   >
                     Sign In
                   </button>
@@ -173,7 +176,6 @@ const Login = () => {
               <span className="underline">Terms</span> and{" "}
               <span className="underline">Privacy Policy</span>
             </p>
-
           </div>
         </div>
       </div>
