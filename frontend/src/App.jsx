@@ -7,6 +7,7 @@ import Homepage from "./Pages/Homepage";
 import Blogdetails from "./Pages/Blogdetails";
 import BlogForm from "./Pages/Admin/BlogForm";
 import ProtectedRoutes from "./Components/ProtectedRoutes";
+import AdminDashboard from "./Pages/Admin/Admindashboard";
 const App = () => {
   return (
     <div>
@@ -19,6 +20,7 @@ const App = () => {
 
         <Route element={<ProtectedRoutes />} >
         <Route path="/blogform" element={<BlogForm />} />
+        <Route path="/admindashboard" element={<AdminDashboard />} />
         </Route>
 
         <Route element={<MainLayout />} />
