@@ -6,18 +6,23 @@ import Signup from "./Pages/User/Signup";
 import Homepage from "./Pages/Homepage";
 import Blogdetails from "./Pages/Blogdetails";
 import BlogForm from "./Pages/Admin/BlogForm";
+import ProtectedRoutes from "./Components/ProtectedRoutes";
 const App = () => {
   return (
     <div>
       <Routes>
+        
         <Route path="/" element={<Homepage />} />
-
-        <Route element={<MainLayout />} />
-        <Route path="/navbar" element={<Navbar />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/blogdetails" element={<Blogdetails />} />
+
+        <Route element={<ProtectedRoutes />} >
         <Route path="/blogform" element={<BlogForm />} />
+        </Route>
+
+        <Route element={<MainLayout />} />
+        <Route path="/navbar" element={<Navbar />} />
       </Routes>
     </div>
   );
