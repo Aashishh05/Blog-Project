@@ -7,6 +7,9 @@ import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { login } from "../../redux/authSlice";
+import { setToken, setUser } from "../../Localstorage/storage";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
@@ -19,6 +22,7 @@ const LoginSchema = Yup.object().shape({
 
 const Login = () => {
   const nav = useNavigate();
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -59,8 +63,18 @@ const Login = () => {
                     `http://localhost:5000/api/auth/login`,
                     values,
                   );
-                  console.log(res.data);
-                  nav('/')
+                  console.log(res.data)
+                  const { user, token } = res.data;
+
+                  dispatch(
+                    login({
+                      user:res.data.user,
+                      token:null,
+                    }),
+                  );
+                  setUser(user);
+                  setToken(token);
+                  nav("/");
                 } catch (error) {
                   console.log("STATUS:", error.response?.status);
                   console.log("DATA:", error.response?.data);
