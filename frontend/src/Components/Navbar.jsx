@@ -65,7 +65,7 @@ const Navbar = () => {
       ];
     }
 
-    return [...baseItems, { label: "Liked Blogs", path: "/liked", icon: true }];
+    return [...baseItems];
   };
 
   const navItems = getNavItems();
