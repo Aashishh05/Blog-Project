@@ -46,7 +46,6 @@ const Navbar = () => {
       { label: "Home", path: "/" },
       { label: "Blogs", path: "/blogdetails" },
       { label: "Contact", path: "/contact" },
-      
     ];
 
     if (userRole === "user") {
@@ -161,27 +160,6 @@ const Navbar = () => {
                       </div>
 
                       <div className="py-2">
-                        {userRole === "user" && (
-                          <>
-                            <NavLink
-                              to="/profile"
-                              onClick={() => setProfileMenuOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 transition-colors duration-200"
-                            >
-                              <FaUser size={16} />
-                              My Profile
-                            </NavLink>
-                            <NavLink
-                              to="/settings"
-                              onClick={() => setProfileMenuOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 transition-colors duration-200"
-                            >
-                              <FaCog size={16} />
-                              Settings
-                            </NavLink>
-                          </>
-                        )}
-
                         {userRole === "admin" && (
                           <NavLink
                             to="/admin/settings"

@@ -60,21 +60,32 @@ const Login = () => {
               onSubmit={async (values) => {
                 try {
                   const res = await axios.post(
-                    `http://localhost:5000/api/auth/login`,
+                    "http://localhost:5000/api/auth/login",
                     values,
+                    { withCredentials: true },
                   );
-                  console.log(res.data)
-                  const { user, token } = res.data;
+
+                  console.log(res.data);
+
+                  const { user, token, admin } = res.data;
+                  const loggedInUser = user || admin;
+
+                  console.log("Logged in user:", loggedInUser);
 
                   dispatch(
                     login({
-                      user:res.data.user,
-                      token:null,
+                      user: loggedInUser,
+                      token,
                     }),
                   );
-                  setUser(user);
-                  setToken(token);
-                  nav("/");
+                  setUser(loggedInUser);
+                  setToken(token)
+
+                  if (loggedInUser.role === "admin") {
+                    nav("/admin/dashboard");
+                  } else {
+                    nav("/");
+                  }
                 } catch (error) {
                   console.log("STATUS:", error.response?.status);
                   console.log("DATA:", error.response?.data);
