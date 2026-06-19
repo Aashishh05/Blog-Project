@@ -98,7 +98,7 @@ const Homepage = () => {
             </Link>
             <Link
               to="/signup"
-              className="inline-flex items-center justify-center px-6 py-3 border-2 border-slate-900 text-slate-900 font-semibold rounded-lg hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3 border-2 border-slate-900 text-slate-900 font-semibold rounded-lg hover:bg-slate-900 hover:text-white transition-all duration-300"
             >
               Join Today
             </Link>
@@ -252,7 +252,7 @@ const Homepage = () => {
             </button>
             <button
               type="submit"
-              className="p-4 border border-teal-600 text-white font-semibold rounded-2xl hover:bg-teal-700 transition-colors whitespace-nowrap"
+              className="p-4 border border-teal-600 text-white font-semibold rounded-2xl hover:bg-teal-600 transition-colors whitespace-nowrap"
               onClick={() => nav("/login")}
             >
               Already Have an Account?
@@ -330,7 +330,7 @@ const Homepage = () => {
     </div>
 
     {/* Bottom Section */}
-    <div className="pt-6 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div className="pt-6 border-t border-slate-300 flex flex-col md:flex-row justify-between items-center gap-4">
 
       <p className="text-sm text-slate-500">
         © {new Date().getFullYear()} TechBlog. All rights reserved.
