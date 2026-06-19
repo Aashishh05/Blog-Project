@@ -86,8 +86,8 @@ export const loginUser = async (req, res) => {
     }
 
     // ✅ same token logic (FIX env key consistency)
-    const token = generateToken(user._id, process.env.SECRET_KEY, "7d");
-    console.log("Token:", token);
+    const token = generateToken(user._id, process.env.secret_key, "7d");
+    
 
     res.cookie("token", token, {
       httpOnly: true,
