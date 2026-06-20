@@ -9,6 +9,7 @@ import BlogForm from "./Pages/Admin/BlogForm";
 import ProtectedRoutes from "./Components/ProtectedRoutes";
 import AdminDashboard from "./Pages/Admin/Admindashboard";
 import AddCategories from "./Pages/Admin/AddCategories";
+import AdminBlogs from "./Pages/Admin/AdminBlogs";
 const App = () => {
   return (
     <div>
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/blogform" element={<BlogForm />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/categories" element={<AddCategories />} />
+        <Route path="/admin/blogs" element={<AdminBlogs />} />
         </Route>
 
         <Route element={<MainLayout />} />
