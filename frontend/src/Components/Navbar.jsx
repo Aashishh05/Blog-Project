@@ -44,7 +44,7 @@ const Navbar = () => {
   const getNavItems = () => {
     const baseItems = [
       { label: "Home", path: "/" },
-      { label: "Blogs", path: "/blogdetails" },
+      { label: "Blogs", path: "/blogs" },
       { label: "Contact", path: "/contact" },
     ];
 

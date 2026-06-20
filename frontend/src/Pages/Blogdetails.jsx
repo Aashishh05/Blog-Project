@@ -82,7 +82,7 @@ const BlogDetail = () => {
       {/* Main Content */}
       <article className="max-w-3xl mx-auto px-5 md:px-10 py-12 md:py-16">
         <Link 
-          to="/"
+          to="/blogs"
           className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-8 transition group"
         >
           <FaArrowLeft size={14} className="group-hover:-translate-x-1 transition" />

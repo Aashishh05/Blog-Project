@@ -10,21 +10,22 @@ import ProtectedRoutes from "./Components/ProtectedRoutes";
 import AdminDashboard from "./Pages/Admin/Admindashboard";
 import AddCategories from "./Pages/Admin/AddCategories";
 import AdminBlogs from "./Pages/Admin/AdminBlogs";
+import Blogs from "./Pages/Blogs";
 const App = () => {
   return (
     <div>
       <Routes>
-        
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/blogdetails" element={<Blogdetails />} />
+        <Route path="/blogs" element={<Blogs />} />
 
-        <Route element={<ProtectedRoutes allowedRoles={["admin"]} />} >
-        <Route path="/blogform" element={<BlogForm />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/categories" element={<AddCategories />} />
-        <Route path="/admin/blogs" element={<AdminBlogs />} />
+        <Route element={<ProtectedRoutes allowedRoles={["admin"]} />}>
+          <Route path="/blogform" element={<BlogForm />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/categories" element={<AddCategories />} />
+          <Route path="/admin/blogs" element={<AdminBlogs />} />
         </Route>
 
         <Route element={<MainLayout />} />
