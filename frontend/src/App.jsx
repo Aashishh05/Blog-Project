@@ -11,6 +11,7 @@ import AdminDashboard from "./Pages/Admin/Admindashboard";
 import AddCategories from "./Pages/Admin/AddCategories";
 import AdminBlogs from "./Pages/Admin/AdminBlogs";
 import Blogs from "./Pages/Blogs";
+import Footer from "./Components/Footer";
 const App = () => {
   return (
     <div>
@@ -30,6 +31,7 @@ const App = () => {
 
         <Route element={<MainLayout />} />
         <Route path="/navbar" element={<Navbar />} />
+        <Route path="/footer" element={<Footer />} />
       </Routes>
     </div>
   );

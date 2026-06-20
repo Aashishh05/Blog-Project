@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../Components/Navbar";
+import Footer from "../Components/Footer";
 
 const Homepage = () => {
   const nav = useNavigate();
@@ -91,7 +92,7 @@ const Homepage = () => {
 
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <Link
-              to="/blog"
+              to="/blogs"
               className="inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors"
             >
               Start Reading
@@ -107,10 +108,10 @@ const Homepage = () => {
       </section>
 
       {/* Featured Article */}
-      <section className="px-5 md:px-10 py-12 md:py-20 bg-slate-100">
+      <section className="px-5 md:px-10 py-12 md:py-20 bg-slate-200">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
-            <span className="text-xs font-semibold text-teal-600 uppercase tracking-widest">
+            <span className="inline-flex items-center px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full bg-gradient-to-r from-indigo-900 to-indigo-950 text-white shadow-md">
               Featured
             </span>
           </div>
@@ -186,7 +187,7 @@ const Homepage = () => {
                 className="group flex flex-col h-full"
               >
                 {/* Card Container */}
-                <div className="rounded-2xl overflow-hidden bg-white border border-slate-100 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
+                <div className="rounded-2xl overflow-hidden bg-white border border-slate-200 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
                   {/* Image */}
                   <div className="aspect-video relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300 group-hover:scale-110 transition-transform duration-500" />
@@ -262,89 +263,7 @@ const Homepage = () => {
       </section>
 
       {/* Footer */}
-     <footer className="bg-white border-t border-slate-200 px-6 md:px-12 py-14">
-  <div className="max-w-6xl mx-auto">
-
-    {/* Top Section */}
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-
-      {/* Brand */}
-      <div>
-        <h2 className="text-xl font-bold text-slate-900">TechBlog</h2>
-        <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-          Sharing modern web development insights, tutorials, and real-world coding experiences.
-        </p>
-
-        {/* Social */}
-        <div className="flex gap-4 mt-5 text-slate-600">
-          <a href="https://x.com/_Aashish_10" className="hover:text-indigo-600 transition">Twitter</a>
-          <a href="https://www.linkedin.com/in/aashish-shrestha-32ab14366/" className="hover:text-indigo-600 transition">LinkedIn</a>
-          <a href="https://github.com/Aashishh05" className="hover:text-indigo-600 transition">GitHub</a>
-        </div>
-      </div>
-
-      {/* Explore */}
-      <div>
-        <h4 className="font-semibold text-slate-900 mb-4">Explore</h4>
-        <ul className="space-y-3 text-sm text-slate-600">
-          <li><Link to="/blogs" className="hover:text-slate-900">All Articles</Link></li>
-          <li><Link to="/categories" className="hover:text-slate-900">Categories</Link></li>
-          <li><Link to="/trending" className="hover:text-slate-900">Trending</Link></li>
-          <li><Link to="/latest" className="hover:text-slate-900">Latest Posts</Link></li>
-        </ul>
-      </div>
-
-      {/* Company */}
-      <div>
-        <h4 className="font-semibold text-slate-900 mb-4">Company</h4>
-        <ul className="space-y-3 text-sm text-slate-600">
-          <li><Link to="/about" className="hover:text-slate-900">About</Link></li>
-          <li><Link to="/contact" className="hover:text-slate-900">Contact</Link></li>
-          <li><Link to="/privacy" className="hover:text-slate-900">Privacy Policy</Link></li>
-          <li><Link to="/terms" className="hover:text-slate-900">Terms</Link></li>
-        </ul>
-      </div>
-
-      {/* Newsletter */}
-      <div>
-        <h4 className="font-semibold text-slate-900 mb-4">Subscribe</h4>
-        <p className="text-sm text-slate-600 mb-4">
-          Get the latest posts delivered straight to your inbox.
-        </p>
-
-        <form className="flex flex-col gap-3">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <button
-            type="submit"
-            className="bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
-          >
-            Subscribe
-          </button>
-        </form>
-      </div>
-
-    </div>
-
-    {/* Bottom Section */}
-    <div className="pt-6 border-t border-slate-300 flex flex-col md:flex-row justify-between items-center gap-4">
-
-      <p className="text-sm text-slate-500">
-        © {new Date().getFullYear()} TechBlog. All rights reserved.
-      </p>
-
-      <div className="flex gap-6 text-sm text-slate-500">
-        <Link to="/privacy" className="hover:text-slate-900">Privacy</Link>
-        <Link to="/terms" className="hover:text-slate-900">Terms</Link>
-        <Link to="/sitemap" className="hover:text-slate-900">Sitemap</Link>
-      </div>
-
-    </div>
-  </div>
-</footer>
+     <Footer />
     </div>
   );
 };
