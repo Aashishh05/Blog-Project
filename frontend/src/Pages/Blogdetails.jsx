@@ -8,6 +8,7 @@ import {
 import { Link } from 'react-router-dom';
 import { IoShareOutline, IoTimeOutline, IoMailOutline } from 'react-icons/io5';
 import Navbar from '../Components/Navbar';
+import Footer from '../Components/Footer';
 
 const BlogDetail = () => {
   const blog = {
@@ -291,85 +292,7 @@ const BlogDetail = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 px-5 md:px-10 py-14">
-        <div className="max-w-6xl mx-auto">
-          {/* Top Section */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-            {/* Brand */}
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">TechBlog</h2>
-              <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-                Sharing modern web development insights, tutorials, and real-world coding experiences.
-              </p>
-
-              {/* Social */}
-              <div className="flex gap-4 mt-5 text-slate-600">
-                <a href="https://x.com/_Aashish_10" className="hover:text-teal-600 transition text-sm">Twitter</a>
-                <a href="https://www.linkedin.com/in/aashish-shrestha-32ab14366/" className="hover:text-teal-600 transition text-sm">LinkedIn</a>
-                <a href="https://github.com/Aashishh05" className="hover:text-teal-600 transition text-sm">GitHub</a>
-              </div>
-            </div>
-
-            {/* Explore */}
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-4">Explore</h4>
-              <ul className="space-y-3 text-sm text-slate-600">
-                <li><Link to="/" className="hover:text-slate-900">All Articles</Link></li>
-                <li><a href="#" className="hover:text-slate-900">Categories</a></li>
-                <li><a href="#" className="hover:text-slate-900">Trending</a></li>
-                <li><a href="#" className="hover:text-slate-900">Latest Posts</a></li>
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-4">Company</h4>
-              <ul className="space-y-3 text-sm text-slate-600">
-                <li><a href="#" className="hover:text-slate-900">About</a></li>
-                <li><a href="#" className="hover:text-slate-900">Contact</a></li>
-                <li><a href="#" className="hover:text-slate-900">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-slate-900">Terms</a></li>
-              </ul>
-            </div>
-
-            {/* Newsletter */}
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-4">Subscribe</h4>
-              <p className="text-sm text-slate-600 mb-4">
-                Get the latest posts delivered to your inbox.
-              </p>
-
-              <form className="flex flex-col gap-3">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-                <button
-                  type="submit"
-                  className="bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition font-semibold"
-                >
-                  Subscribe
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* Bottom Section */}
-          <div className="pt-6 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-slate-500">
-              © {new Date().getFullYear()} TechBlog. All rights reserved.
-            </p>
-
-            <div className="flex gap-6 text-sm text-slate-500">
-              <a href="#" className="hover:text-slate-900">Privacy</a>
-              <a href="#" className="hover:text-slate-900">Terms</a>
-              <a href="#" className="hover:text-slate-900">Sitemap</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+     <Footer />
     </div>
   );
 }
