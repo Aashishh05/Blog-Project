@@ -46,7 +46,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           </p>
 
           <NavLink
-            to="/admindashboard"
+            to="/admin/dashboard"
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 isActive

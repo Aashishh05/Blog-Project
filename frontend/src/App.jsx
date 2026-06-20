@@ -8,6 +8,7 @@ import Blogdetails from "./Pages/Blogdetails";
 import BlogForm from "./Pages/Admin/BlogForm";
 import ProtectedRoutes from "./Components/ProtectedRoutes";
 import AdminDashboard from "./Pages/Admin/Admindashboard";
+import AddCategories from "./Pages/Admin/AddCategories";
 const App = () => {
   return (
     <div>
@@ -21,6 +22,7 @@ const App = () => {
         <Route element={<ProtectedRoutes allowedRoles={["admin"]} />} >
         <Route path="/blogform" element={<BlogForm />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/categories" element={<AddCategories />} />
         </Route>
 
         <Route element={<MainLayout />} />
