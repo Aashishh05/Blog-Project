@@ -4,47 +4,32 @@ import Sidebar from "../../Components/Sidebar";
 import { FaBars } from "react-icons/fa";
 import axios from "axios";
 
-const STATIC_ARTICLES = [
-  {
-    id: 1,
-    title: "The Future of Web Design",
-    excerpt:
-      "Exploring emerging trends, tools, and philosophies shaping how we design for the web.",
-    category: "design",
-    readTime: "8 min read",
-  },
-  {
-    id: 2,
-    title: "Rethinking Component Architecture",
-    excerpt: "Building scalable and maintainable component systems.",
-    category: "technology",
-    readTime: "6 min read",
-  },
-  {
-    id: 3,
-    title: "Design Systems That Scale",
-    excerpt: "Creating consistency across products and teams.",
-    category: "design",
-    readTime: "7 min read",
-  },
-];
-
 const AdminBlogs = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [category, setCategory] = useState([]);
+  const [blogs, setBlgs] = useState([]);
 
   const fetchCategory = async () => {
     try {
       const res = await axios.get(`http://localhost:5000/api/category/get`);
-      console.log(res.data);
       setCategory(res.data.categories);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const fetchBlogs = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/blog/get`);
+      console.log(res.data);
+      setBlgs(res.data.blogs);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    fetchCategory();
+    (fetchCategory(), fetchBlogs());
   }, []);
 
   return (
@@ -108,32 +93,35 @@ const AdminBlogs = () => {
 
           <div className="max-w-5xl mx-auto pb-24">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
-              {STATIC_ARTICLES.map((article) => (
+              {blogs.map((item) => (
                 <div
-                  key={article.id}
-                  className="flex flex-col min-h-full rounded-2xl overflow-hidden bg-white border border-slate-200 transition-all duration-300 hover:shadow-2xl "
+                  key={item._id}
+                  className="flex flex-col min-h-full rounded-2xl overflow-hidden bg-white border border-slate-200 transition-all duration-300 hover:shadow-2xl"
                 >
                   <div className="aspect-video relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300" />
+                    <img
+                      src={item.image?.url}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
 
                   <div className="p-6 flex flex-col flex-grow">
                     <span className="text-[11px] font-semibold tracking-widest uppercase text-teal-600 mb-3">
-                      {article.category}
+                      {typeof item.category === "object"
+                        ? item.category?.name
+                        : "Uncategorized"}
                     </span>
 
                     <h3 className="text-xl font-bold text-slate-900 mb-3 leading-snug">
-                      {article.title}
+                      {item.title}
                     </h3>
 
-                    <p className="text-slate-600 text-sm mb-6 flex-grow leading-relaxed">
-                      {article.excerpt}
+                    <p className="text-sm text-slate-500 mb-4 line-clamp-2">
+                      {item.subtitle}
                     </p>
 
                     <div className="flex items-center justify-between pt-4 border-t border-slate-100 mb-4">
-                      <span className="text-xs text-slate-500">
-                        {article.readTime}
-                      </span>
                       <Link
                         to="/blogdetails"
                         className="text-slate-400 hover:text-teal-600 transition-colors text-sm font-medium"
@@ -146,6 +134,7 @@ const AdminBlogs = () => {
                       <button className="flex-1 px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors">
                         Edit
                       </button>
+
                       <button className="flex-1 px-4 py-2 border border-red-200 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-50 transition-colors">
                         Delete
                       </button>
