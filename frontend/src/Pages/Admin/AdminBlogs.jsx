@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Navbar from "../../Components/Navbar";
 import Sidebar from "../../Components/Sidebar";
 import { FaBars } from "react-icons/fa";
-
-const CATEGORIES = ["all", "technology", "design", "creativity"];
+import axios from "axios";
 
 const STATIC_ARTICLES = [
   {
@@ -33,6 +31,22 @@ const STATIC_ARTICLES = [
 
 const AdminBlogs = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [category, setCategory] = useState([]);
+
+  const fetchCategory = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/category/get`);
+      console.log(res.data);
+      setCategory(res.data.categories);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategory();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -77,16 +91,16 @@ const AdminBlogs = () => {
         <section className="px-5 md:px-10">
           <div className="max-w-5xl mx-auto mb-12">
             <div className="flex flex-wrap gap-3">
-              {CATEGORIES.map((cat) => (
+              {category.map((cat) => (
                 <button
-                  key={cat}
+                  key={cat._id}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     cat === "all"
                       ? "bg-slate-900 text-white"
                       : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                   }`}
                 >
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  {cat.name.charAt(0).toUpperCase() + cat.name.slice(1)}{" "}
                 </button>
               ))}
             </div>
