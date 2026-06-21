@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { FaBars } from "react-icons/fa";
 import Sidebar from "../../Components/Sidebar";
+import axios from "axios";
+import { FiEdit } from "react-icons/fi";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const CategorySchema = Yup.object({
   name: Yup.string()
@@ -18,12 +21,111 @@ const CategorySchema = Yup.object({
 
 const AddCategories = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [category, setCategory] = useState([]);
+  const [error, setError] = useState(null);
+  const [edit, setEdit] = useState(null);
+  const [initialValue, setInitialValue] = useState({
+    name: "",
+    description: "",
+  });
 
-  const handleSubmit = (values, { resetForm }) => {
-    console.log(values);
-    // API call would go here
-    resetForm();
+  const fetchCategory = async () => {
+    try {
+      const category_res = await axios.get(
+        `http://localhost:5000/api/category/get`,
+        { withCredentials: true },
+      );
+
+      setCategory(category_res.data.categories);
+    } catch (err) {
+      console.log(err);
+    }
   };
+
+  const handleSubmit = async (values, { resetForm }) => {
+    try {
+      if (edit) {
+        const res = await axios.put(
+          `http://localhost:5000/api/category/update/${edit}`,
+          values,
+          { withCredentials: true },
+        );
+
+        setCategory((prev) =>
+          prev.map((item) => (item._id === edit ? res.data.category : item)),
+        );
+        alert("Category updated successfully");
+        setEdit(null);
+      } else {
+        const res = await axios.post(
+          "http://localhost:5000/api/category/create",
+          values,
+          { withCredentials: true },
+        );
+
+        console.log("SUCCESS:", res.data);
+        setCategory((prev) => [...prev, res.data.category]);
+        resetForm();
+
+        setInitialValue({
+          name: "",
+          description: "",
+        });
+      }
+    } catch (error) {
+      console.log("ERROR RESPONSE:", error.response?.data);
+      setError(error.response?.data?.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const confirmed = await window.confirm(
+      "Are you sure want to delete this category?",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const res = await axios.delete(
+        `http://localhost:5000/api/category/delete/${id}`,
+        { withCredentials: true },
+      );
+
+      if (res.status === 200) {
+        alert("Category deleted successfully");
+        setCategory((prev) => prev.filter((c) => c._id !== id));
+      }
+    } catch (error) {
+      console.log("Error deleting category", error);
+      alert("Something went wrong");
+    }
+  };
+
+  const handleEdit = async (id) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/category/get/${id}`,
+        { withCredentials: true },
+      );
+      console.log(res.data);
+      setEdit(id);
+
+      setInitialValue({
+        name: res.data.category.name,
+        description: res.data.category.description,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategory();
+  }, []);
+
+  if (error) {
+    return <div className="p-4 text-red-600 font-semibold">{error}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex relative overflow-hidden font-sans">
@@ -76,10 +178,8 @@ const AddCategories = () => {
           </div>
 
           <Formik
-            initialValues={{
-              name: "",
-              description: "",
-            }}
+            enableReinitialize
+            initialValues={initialValue}
             validationSchema={CategorySchema}
             onSubmit={handleSubmit}
           >
@@ -150,7 +250,7 @@ const AddCategories = () => {
                   <button
                     type="reset"
                     onClick={resetForm}
-                    className="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 transition-all duration-200"
+                    className="px-6 py-3 rounded-xl border border-slate-200 text-slate-700 font-semibold hover:bg-slate-200 transition-all duration-200 hover:shadow-lg hover:shadow-cyan-500/20 active:scale-95"
                   >
                     Reset
                   </button>
@@ -159,12 +259,77 @@ const AddCategories = () => {
                     type="submit"
                     className="px-6 py-3 rounded-xl bg-gradient-to-br from-indigo-900 to-indigo-950 text-white font-semibold hover:shadow-lg hover:shadow-cyan-500/20 transition active:scale-95"
                   >
-                    Create Category
+                    {edit ? "Update Category" : "Create Category"}
                   </button>
                 </div>
               </form>
             )}
           </Formik>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-10">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">
+                Category List
+              </h2>
+              <span className="text-sm text-slate-500">
+                Total: {category?.length || 0}
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead className="bg-slate-100 text-slate-600 uppercase text-xs tracking-wider">
+                  <tr>
+                    <th className="px-6 py-3 text-left">Name</th>
+                    <th className="px-6 py-3 text-left">Description</th>
+                    <th className="px-6 py-3 text-left">Created At</th>
+                    <th className="px-6 py-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-slate-100">
+                  {category?.map((item) => (
+                    <tr
+                      key={item._id}
+                      className="hover:bg-slate-200 transition-colors"
+                    >
+                      <td className="px-6 py-4 font-medium text-slate-900">
+                        {item.name}
+                      </td>
+
+                      <td className="px-6 py-4 text-slate-600 max-w-md truncate">
+                        {item.description}
+                      </td>
+
+                      <td className="px-6 py-4 text-slate-500">
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-all duration-200 hover:scale-105 cursor-pointer"
+                            onClick={() => handleEdit(item._id)}
+                          >
+                            <FiEdit />
+                            <span>Edit</span>
+                          </button>
+
+                          <button
+                            className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-all duration-200 hover:scale-105 cursor-pointer"
+                            onClick={() => handleDelete(item._id)}
+                          >
+                            <RiDeleteBin6Line />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </main>
       </div>
     </div>
