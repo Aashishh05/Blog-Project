@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { FaBars } from "react-icons/fa";
 import Sidebar from "../../Components/Sidebar";
+import axios from "axios";
 
 const BlogSchema = Yup.object({
   title: Yup.string()
@@ -22,10 +23,57 @@ const BlogSchema = Yup.object({
 
 const BlogForm = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [blog, setBlog] = useState([]);
+  const [category, setCategory] = useState([]);
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     console.log(values);
+    try {
+      const formData = new FormData();
+
+      formData.append("title", values.title);
+      formData.append("subtitle", values.subtitle);
+      formData.append("category", values.category);
+      formData.append("content", values.content);
+
+      if (values.coverImage) {
+        formData.append("image", values.coverImage);
+      }
+
+      const res = await axios.post(
+        `http://localhost:5000/api/blog/create`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      console.log(res.data);
+      setBlog((prev) => [...prev,res.data.blog])
+    } catch (error) {
+      console.log(error.response?.data);
+
+      console.log(error);
+    }
   };
+
+  const fetchCategory = async () => {
+    try {
+      const category_res = await axios.get(
+        `http://localhost:5000/api/category/get`,
+        { withCredentials: true },
+      );
+      setCategory(category_res.data.categories);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategory();
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 flex relative overflow-hidden font-sans">
@@ -169,14 +217,13 @@ const BlogForm = () => {
                     } outline-none`}
                   >
                     <option value="">Select Category</option>
-                    <option value="Technology">Technology</option>
-                    <option value="Programming">Programming</option>
-                    <option value="Web Development">Web Development</option>
-                    <option value="AI & Machine Learning">
-                      AI & Machine Learning
-                    </option>
-                    <option value="Design">Design</option>
-                    <option value="Lifestyle">Lifestyle</option>
+                    {category?.map((cat) => {
+                      return (
+                        <option key={cat._id} value={cat._id}>
+                          {cat.name}
+                        </option>
+                      );
+                    })}
                   </select>
 
                   {errors.category && touched.category && (
@@ -194,7 +241,7 @@ const BlogForm = () => {
                   <input
                     type="file"
                     accept="image/*"
-                    name="coverImage"
+                    name="image"
                     onChange={(event) =>
                       setFieldValue("coverImage", event.currentTarget.files[0])
                     }
@@ -222,7 +269,9 @@ const BlogForm = () => {
                   />
 
                   {errors.content && touched.content && (
-                    <p className="text-red-500 text-sm mt-1">{errors.content}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.content}
+                    </p>
                   )}
                 </div>
 
