@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Sidebar from "../../Components/Sidebar";
 import { FaBars } from "react-icons/fa";
 import axios from "axios";
@@ -7,7 +7,8 @@ import axios from "axios";
 const AdminBlogs = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [category, setCategory] = useState([]);
-  const [blogs, setBlgs] = useState([]);
+  const [blogs, setBlogs] = useState([]);
+  const nav = useNavigate();
 
   const fetchCategory = async () => {
     try {
@@ -20,16 +21,41 @@ const AdminBlogs = () => {
 
   const fetchBlogs = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/blog/get`);
+      const res = await axios.get(`http://localhost:5000/api/blog/get`, {
+        withCredentials: true,
+      });
       console.log(res.data);
-      setBlgs(res.data.blogs);
+      setBlogs(res.data.blogs);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const handleDelete = async (id) => {
+    const confirmed = await window.confirm(
+      "Are you sure want to delete this blog?",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const res = await axios.delete(
+        `http://localhost:5000/api/blog/delete/${id}`,
+        { withCredentials: true },
+      );
+
+      if (res.status === 200) {
+        setBlogs((prev) => prev.filter((c) => c._id !== id));
+      }
+    } catch (error) {
+      console.log("Error deleting blog", error);
+      alert("Something went wrong");
+    }
+  };
+
   useEffect(() => {
-    (fetchCategory(), fetchBlogs());
+    fetchCategory();
+    fetchBlogs();
   }, []);
 
   return (
@@ -79,11 +105,7 @@ const AdminBlogs = () => {
               {category.map((cat) => (
                 <button
                   key={cat._id}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    cat === "all"
-                      ? "bg-slate-900 text-white"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
+                  className="px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200"
                 >
                   {cat.name.charAt(0).toUpperCase() + cat.name.slice(1)}{" "}
                 </button>
@@ -108,9 +130,7 @@ const AdminBlogs = () => {
 
                   <div className="p-6 flex flex-col flex-grow">
                     <span className="text-[11px] font-semibold tracking-widest uppercase text-teal-600 mb-3">
-                      {typeof item.category === "object"
-                        ? item.category?.name
-                        : "Uncategorized"}
+                      {item.category?.name || "Uncategorized"}
                     </span>
 
                     <h3 className="text-xl font-bold text-slate-900 mb-3 leading-snug">
@@ -131,11 +151,17 @@ const AdminBlogs = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <button className="flex-1 px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors">
+                      <button
+                        className="flex-1 px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors"
+                        onClick={() => nav(`/blogform/${item._id}`)}
+                      >
                         Edit
                       </button>
 
-                      <button className="flex-1 px-4 py-2 border border-red-200 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-50 transition-colors">
+                      <button
+                        className="flex-1 px-4 py-2 border border-red-200 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-50 transition-colors"
+                        onClick={() => handleDelete(item._id)}
+                      >
                         Delete
                       </button>
                     </div>

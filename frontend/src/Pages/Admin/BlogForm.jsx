@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import { FaBars } from "react-icons/fa";
 import Sidebar from "../../Components/Sidebar";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 const BlogSchema = Yup.object({
   title: Yup.string()
@@ -24,10 +25,45 @@ const BlogSchema = Yup.object({
 const BlogForm = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [blog, setBlog] = useState([]);
+  const [imagePreview, setImagePreview] = useState("");
   const [category, setCategory] = useState([]);
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
+  const nav = useNavigate();
+  const [initialValues, setInitialValues] = useState({
+    title: "",
+    subtitle: "",
+    category: "",
+    content: "",
+    coverImage: null,
+  });
+
+const fetchBlogById = async () => {
+  try {
+    const res = await axios.get(
+      `http://localhost:5000/api/blog/get/${id}`,
+      {
+        withCredentials: true,
+      }
+    );
+
+    const blog = res.data.blog;
+
+    setInitialValues({
+      title: blog.title || "",
+      subtitle: blog.subtitle || "",
+      category: blog.category?._id || blog.category || "",
+      content: blog.content || "",
+      coverImage: null,
+    });
+
+    setImagePreview(blog.image?.url || "");
+  } catch (error) {
+    console.log(error.response?.data || error);
+  }
+};
 
   const handleSubmit = async (values) => {
-    console.log(values);
     try {
       const formData = new FormData();
 
@@ -39,23 +75,35 @@ const BlogForm = () => {
       if (values.coverImage) {
         formData.append("image", values.coverImage);
       }
-
-      const res = await axios.post(
-        `http://localhost:5000/api/blog/create`,
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
+      if (isEditMode) {
+        const res = await axios.put(
+          `http://localhost:5000/api/blog/update/${id}`,
+          formData,
+          {withCredentials:true,
+            headers: { "Content-Type": "multipart/form-data" },
           },
-        },
-      );
-      console.log(res.data);
-      setBlog((prev) => [...prev,res.data.blog])
+        );
+        if (res.status === 200) {
+          alert("blog updated successfully");
+        }
+        nav(`/admin/blogs`)
+      } else {
+        const res = await axios.post(
+          `http://localhost:5000/api/blog/create`,
+          formData,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          },
+        );
+        console.log(res.data);
+        setBlog((prev) => [...prev, res.data.blog]);
+        nav(`/admin/blogs`);
+      }
     } catch (error) {
       console.log(error.response?.data);
-
-      console.log(error);
     }
   };
 
@@ -73,7 +121,10 @@ const BlogForm = () => {
 
   useEffect(() => {
     fetchCategory();
-  }, []);
+    if (id) {
+      fetchBlogById();
+    }
+  }, [id]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex relative overflow-hidden font-sans">
@@ -111,7 +162,7 @@ const BlogForm = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <span className="inline-flex items-center px-4 py-2 rounded-full bg-cyan-100 text-cyan-700 text-sm font-semibold tracking-wide">
-                ✍️ Create Blog
+                {isEditMode ? "Edit Blog" : "✍️ Create Blog"}
               </span>
             </div>
 
@@ -127,13 +178,8 @@ const BlogForm = () => {
           </div>
 
           <Formik
-            initialValues={{
-              title: "",
-              category: "",
-              subtitle: "",
-              content: "",
-              coverImage: null,
-            }}
+            enableReinitialize
+            initialValues={initialValues}
             validationSchema={BlogSchema}
             onSubmit={handleSubmit}
           >
@@ -242,11 +288,27 @@ const BlogForm = () => {
                     type="file"
                     accept="image/*"
                     name="image"
-                    onChange={(event) =>
-                      setFieldValue("coverImage", event.currentTarget.files[0])
-                    }
+                    onChange={(event) => {
+                      const file = event.currentTarget.files[0];
+
+                      setFieldValue("coverImage", file);
+
+                      if (file) {
+                        setImagePreview(URL.createObjectURL(file));
+                      }
+                    }}
                     className="w-full border border-slate-300 rounded-xl p-3 bg-slate-50 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-100 outline-none transition"
                   />
+
+                  {imagePreview && (
+                    <div className="mt-4">
+                      <img
+                        src={imagePreview}
+                        alt="Blog Cover"
+                        className="w-64 h-40 rounded-lg object-cover border border-slate-300"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -287,7 +349,7 @@ const BlogForm = () => {
                     type="submit"
                     className="px-6 py-3 rounded-xl bg-gradient-to-br from-indigo-900 to-indigo-950 text-white font-semibold hover:shadow-lg hover:shadow-cyan-500/20 transition active:scale-95"
                   >
-                    Publish Blog
+                    {isEditMode ? "Update Blog" : "Publish Blog"}
                   </button>
                 </div>
               </form>

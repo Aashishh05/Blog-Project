@@ -14,7 +14,7 @@ import upload from "../middleware/uploadMiddleware.js";
 const router = express.Router();
 
 router.post("/create", protect, upload.single("image"), adminOnly, createBlog);
-router.get("/get", getAllBlogs);
+router.get("/get",getAllBlogs);
 router.get("/get/:id", getBlogById);
 router.put(
   "/update/:id",

@@ -24,6 +24,7 @@ const App = () => {
 
         <Route element={<ProtectedRoutes allowedRoles={["admin"]} />}>
           <Route path="/blogform" element={<BlogForm />} />
+          <Route path="/blogform/:id" element={<BlogForm />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/categories" element={<AddCategories />} />
           <Route path="/admin/blogs" element={<AdminBlogs />} />

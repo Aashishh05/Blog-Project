@@ -3,6 +3,7 @@ import fs from "fs";
 import UploadToCloudinary from "../utils/cloudinaryUploads.js";
 import DeleteFromCloudinary from "../utils/cloudinaryDelete.js";
 import cloudinary from "../config/cloudinary.js";
+import Comment from "../models/commentModel.js";
 
 export const createBlog = async (req, res) => {
   try {
@@ -87,13 +88,12 @@ export const getBlogById = async (req, res) => {
     const blog = await Blog.findById(id)
       .populate("author", "fullName email")
       .populate({
-        path: "comments",
+        path: "comment",
         populate: {
           path: "user",
           select: "fullName email",
         },
       });
-
     if (!blog) {
       return res.status(404).json({
         success: false,
@@ -144,7 +144,7 @@ export const updateBlog = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Blog updated successfully",
-      blog: updatedBlog,
+      blog,
     });
   } catch (error) {
     res.status(500).json({
@@ -167,12 +167,11 @@ export const deleteBlog = async (req, res) => {
       });
     }
 
-
-    if(blog.image?.public_id){
-      await DeleteFromCloudinary(blog.image.public_id)
+    if (blog.image?.public_id) {
+      await DeleteFromCloudinary(blog.image.public_id);
     }
 
-    await blog.deleteOne()
+    await blog.deleteOne();
 
     // // delete image from uploads folder
     // if (blog.image) {
