@@ -19,7 +19,7 @@ const App = () => {
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/blogdetails" element={<Blogdetails />} />
+        <Route path="/blogdetails/:id" element={<Blogdetails />} />
         <Route path="/blogs" element={<Blogs />} />
 
         <Route element={<ProtectedRoutes allowedRoles={["admin"]} />}>
