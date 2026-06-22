@@ -1,9 +1,15 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { 
-  FaBlog, FaTags, FaUsers, FaCog, FaSignOutAlt, 
-  FaTachometerAlt, FaTimes 
+import {
+  FaBlog,
+  FaTags,
+  FaCog,
+  FaSignOutAlt,
+  FaTachometerAlt,
+  FaTimes,
 } from "react-icons/fa";
+import { FaMicroblog } from "react-icons/fa6";
+
 import { logout } from "../redux/authSlice";
 import { clearStorage } from "../Localstorage/storage";
 
@@ -24,15 +30,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       }`}
     >
       <div className="w-64 flex flex-col h-full">
-        
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-900 to-indigo-950 flex items-center justify-center font-bold text-white text-sm shadow-md">
               B
             </div>
-            <span className="font-bold text-xl text-slate-900 tracking-tight">TECHBLOG</span>
+            <span className="font-bold text-xl text-slate-900 tracking-tight">
+              TECHBLOG
+            </span>
           </div>
-          <button 
+          <button
             onClick={() => setSidebarOpen(false)}
             className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
           >
@@ -57,6 +64,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           >
             <FaTachometerAlt className="text-base" />
             <span>Dashboard</span>
+          </NavLink>
+
+          <NavLink
+            to="/blogform"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                isActive
+                  ? "text-cyan-700 bg-cyan-600/10 border-l-[3px] border-cyan-600 rounded-l-none pl-2.5"
+                  : "text-slate-600 hover:bg-slate-100/70 hover:text-slate-900"
+              }`
+            }
+          >
+            <FaMicroblog className="text-base" />
+            <span>+ Add Blog</span>
           </NavLink>
 
           <NavLink
@@ -88,20 +109,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           </NavLink>
 
           <NavLink
-            to="/admin/users"
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                isActive
-                  ? "text-cyan-700 bg-cyan-600/10 border-l-[3px] border-cyan-600 rounded-l-none pl-2.5"
-                  : "text-slate-600 hover:bg-slate-100/70 hover:text-slate-900"
-              }`
-            }
-          >
-            <FaUsers className="text-base" />
-            <span>Users</span>
-          </NavLink>
-
-          <NavLink
             to="/admin/settings"
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
@@ -125,8 +132,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               A
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-slate-900 truncate">Admin User</p>
-              <p className="text-xs text-slate-500 truncate">admin@techblog.com</p>
+              <p className="text-sm font-semibold text-slate-900 truncate">
+                Admin User
+              </p>
+              <p className="text-xs text-slate-500 truncate">
+                admin@techblog.com
+              </p>
             </div>
             <FaSignOutAlt className="text-slate-400 group-hover:text-red-500 transition-colors text-sm shrink-0" />
           </div>

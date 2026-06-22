@@ -196,6 +196,15 @@ const fetchBlogById = async () => {
                 onSubmit={handleSubmit}
                 className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-6 hover:shadow-lg transition-shadow duration-300"
               >
+
+                    <div className="mb-6">
+              <button
+                onClick={() => nav("/admin/dashboard")}
+                className="inline-flex items-center gap-2 bg-slate-200 text-slate-600 border border-gray-200 rounded-lg px-3 py-1 hover:scale-105 transition-all duration-300"
+              >
+                ← Back
+              </button>
+            </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Title <span className="text-red-500">*</span>

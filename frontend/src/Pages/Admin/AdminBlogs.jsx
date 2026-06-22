@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Sidebar from "../../Components/Sidebar";
 import { FaBars } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+
 import axios from "axios";
 
 const AdminBlogs = () => {
@@ -86,16 +88,34 @@ const AdminBlogs = () => {
         </header>
 
         <section className="px-5 md:px-10 pt-16 md:pt-20 pb-10">
-          <div className="max-w-5xl mx-auto">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
-              Manage Content
-            </span>
-            <h1 className="text-5xl md:text-6xl font-bold text-slate-900 leading-[0.95] mt-3 mb-4 tracking-tight">
-              All Articles
-            </h1>
-            <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
-              Browse, edit, update, or remove articles from your blog.
-            </p>
+          <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            {/* Left Content */}
+            <div>
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                Manage Content
+              </span>
+
+              <h1 className="text-5xl md:text-6xl font-bold text-slate-900 leading-[0.95] mt-3 mb-4 tracking-tight">
+                All Articles
+              </h1>
+
+              <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
+                Browse, edit, update, or remove articles from your blog.
+              </p>
+            </div>
+
+            {/* Right Search Bar */}
+            <div className="relative w-full md:w-80">
+              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+
+              <input
+                type="text"
+                placeholder="Search articles..."
+                className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 
+        focus:outline-none focus:ring focus:ring-teal-500
+        focus:border-slate-400 transition"
+              />
+            </div>
           </div>
         </section>
 
