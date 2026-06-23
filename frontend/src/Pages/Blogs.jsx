@@ -11,6 +11,13 @@ const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const calculateReadingTime = (content) => {
+    if (!content) return "1 min";
+    const words = content.trim().split(/\s+/).length;
+    const minutes = Math.ceil(words / 200); 
+    return `${minutes} min`;
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -21,6 +28,8 @@ const Blogs = () => {
 
       setCategory(res_categories.data.categories);
       setBlogs(res_blogs.data.blogs);
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
       console.log(error);
     } finally {
@@ -32,29 +41,52 @@ const Blogs = () => {
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg font-medium text-slate-600">Loading...</p>
-      </div>
-    );
-  }
-
   // Filter blogs based on active category and search query
   const filteredBlogs = blogs.filter((blog) => {
     const matchesCategory =
       activeCategory === "all" || blog.category?.name === activeCategory;
     const matchesSearch =
       blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      blog.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
   return (
     <div className="min-h-screen bg-white">
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: -1000px 0; }
+          100% { background-position: 1000px 0; }
+        }
+        .animate-shimmer {
+          background: linear-gradient(90deg, #e5e7eb 0%, #f3f4f6 50%, #e5e7eb 100%);
+          background-size: 1000px 100%;
+          animation: shimmer 1s infinite;
+        }
+        .pulse-slow {
+          animation: pulse 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+        .fade-in {
+          animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+          from { 
+            opacity: 0; 
+            transform: translateY(15px);
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0);
+          }
+        }
+      `}</style>
       <Navbar />
 
-      <section className="px-5 md:px-10 pt-16 md:pt-24 pb-12 border-b border-slate-100">
+      <section className="px-5 md:px-10 pt-16 md:pt-24 pb-12 border-b border-slate-100 fade-in">
         <div className="max-w-5xl mx-auto">
           <span className="text-xs font-semibold text-teal-600 uppercase tracking-widest block mb-3">
             Our Archive
@@ -69,7 +101,7 @@ const Blogs = () => {
         </div>
       </section>
 
-      <section className="px-5 md:px-10 pt-10 pb-6 bg-slate-50/50">
+      <section className="px-5 md:px-10 pt-10 pb-6 bg-slate-50/50 fade-in">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="flex flex-wrap gap-2.5">
             <button
@@ -111,8 +143,37 @@ const Blogs = () => {
 
       <section className="px-5 md:px-10 py-16">
         <div className="max-w-5xl mx-auto pb-24">
-          {filteredBlogs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+          {loading ? (
+            <div>
+              <div className="flex justify-center items-center gap-2 mb-12">
+                <div className="w-3 h-3 bg-teal-600 rounded-full pulse-slow" />
+                <p className="text-slate-500 font-medium">
+                  Loading articles...
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+                {[1, 2, 3, 4, 5, 6].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-2xl overflow-hidden bg-white border border-slate-200 flex flex-col h-full"
+                  >
+                    <div className="aspect-video bg-gradient-to-r from-slate-300 to-slate-400 animate-shimmer" />
+                    <div className="p-6 flex flex-col flex-grow">
+                      <div className="h-3 bg-slate-300 rounded w-24 mb-3 animate-shimmer" />
+                      <div className="h-6 bg-slate-300 rounded w-full mb-2 animate-shimmer" />
+                      <div className="h-6 bg-slate-300 rounded w-5/6 mb-4 animate-shimmer" />
+                      <div className="h-4 bg-slate-300 rounded w-full mb-2 animate-shimmer" />
+                      <div className="h-4 bg-slate-300 rounded w-4/5 mb-6 animate-shimmer" />
+                      <div className="mt-auto pt-4 border-t border-slate-100">
+                        <div className="h-3 bg-slate-300 rounded w-16 animate-shimmer" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : filteredBlogs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 fade-in">
               {filteredBlogs.map((item) => (
                 <Link
                   key={item._id}
@@ -153,6 +214,9 @@ const Blogs = () => {
                       </p>
 
                       <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <span className="text-xs font-semibold text-slate-400 group-hover:text-teal-600 transition-colors">
+                          {calculateReadingTime(item.content)}
+                        </span>
                         <span className="text-slate-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all duration-300 text-lg">
                           →
                         </span>
@@ -163,7 +227,7 @@ const Blogs = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+            <div className="text-center py-20 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50 fade-in">
               <h3 className="text-lg font-semibold text-slate-800 mb-1">
                 No articles found
               </h3>
