@@ -43,9 +43,30 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm("Are you sure want to delete this blog?");
+    if (!confirmed) return;
+
+    try {
+      const res = await axios.delete(
+        `http://localhost:5000/api/blog/delete/${id}`,
+        {
+          withCredentials: true,
+        },
+      );
+      if (res.status === 200) {
+        setBlogs((prev) => prev.filter((blog) => blog._id !== id));
+        alert("Blog deleted successfully");
+      }
+    } catch (error) {
+      console.log(error.response?.data || error);
+      alert(error.response?.data?.message || "Something went wrong");
+    }
+  };
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, []); 
 
   const totalBlogs = blogs.length;
   const totalCategories = categories.length;
@@ -352,22 +373,14 @@ const AdminDashboard = () => {
                                 <FaEye size={13} />
                               </button>
                               <button
-                                onClick={() => nav(`/editblog/${blog._id}`)}
+                                onClick={() => nav(`/blogform/${blog._id}`)}
                                 className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
                                 title="Edit"
                               >
                                 <FaEdit size={13} />
                               </button>
                               <button
-                                onClick={() => {
-                                  if (
-                                    window.confirm(
-                                      "Are you sure you want to delete this blog?",
-                                    )
-                                  ) {
-                                    console.log("Delete blog:", blog._id);
-                                  }
-                                }}
+                                onClick={() => handleDelete(blog._id)}
                                 className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
                                 title="Delete"
                               >
