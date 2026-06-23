@@ -14,7 +14,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Close profile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -30,7 +29,6 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    // Dispatch logout action
     dispatch(logout());
     console.log(logout());
     clearStorage();
@@ -40,7 +38,6 @@ const Navbar = () => {
 
   const userRole = user?.role || "guest";
 
-  // Navigation items based on role
   const getNavItems = () => {
     const baseItems = [
       { label: "Home", path: "/" },
@@ -58,7 +55,7 @@ const Navbar = () => {
     if (userRole === "admin") {
       return [
         { label: "Home", path: "/" },
-        { label: "Blogs", path: "/blogdetails" },
+        { label: "Blogs", path: "/admin/blogs" },
         { label: "Dashboard", path: "/admin/dashboard" },
         { label: "Categories", path: "/admin/categories" },
         { label: "Contact", path: "/contact" },
@@ -92,7 +89,6 @@ const Navbar = () => {
               </span>
             </NavLink>
 
-            {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-10 font-medium">
               {navItems.map((item) => (
                 <NavLink
@@ -113,7 +109,6 @@ const Navbar = () => {
               ))}
             </nav>
 
-            {/* Desktop Auth Section */}
             <div className="hidden lg:flex items-center gap-3">
               {!isLoggedIn ? (
                 <>
@@ -144,7 +139,6 @@ const Navbar = () => {
                     </span>
                   </button>
 
-                  {/* Profile Dropdown Menu */}
                   {profileMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-lg border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                       <div className="px-4 py-3 border-b border-gray-200">
@@ -185,7 +179,6 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 text-slate-700 hover:text-indigo-900 transition-colors duration-300"
@@ -194,7 +187,6 @@ const Navbar = () => {
             </button>
           </div>
 
-          {/* Mobile Menu */}
           <div
             className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
               mobileMenuOpen
@@ -297,7 +289,6 @@ const Navbar = () => {
         </div>
       </header>
 
-      {/* Spacer */}
       <div className="h-16 lg:h-20"></div>
     </>
   );
