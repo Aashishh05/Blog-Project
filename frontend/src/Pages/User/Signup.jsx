@@ -166,7 +166,7 @@ const Signup = () => {
 
                     <button
                       type="submit"
-                      onClick={() => console.log("Button clicked")}
+                      
                       className="w-full py-3 mt-2 scale-105 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg
   hover:shadow-lg hover:shadow-cyan-500/40 transition-all duration-300
   active:scale-95 active:shadow-none"
