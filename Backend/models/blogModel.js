@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const blogSchema =new mongoose.Schema(
+const blogSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -16,8 +16,8 @@ const blogSchema =new mongoose.Schema(
       required: [true, "Content is required"],
     },
     image: {
-      url:String,
-      public_id:String,
+      url: String,
+      public_id: String,
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
@@ -29,12 +29,7 @@ const blogSchema =new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    likes: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+
     comment: [
       {
         type: mongoose.Schema.Types.ObjectId,

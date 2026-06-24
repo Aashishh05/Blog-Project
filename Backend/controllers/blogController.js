@@ -4,6 +4,7 @@ import UploadToCloudinary from "../utils/cloudinaryUploads.js";
 import DeleteFromCloudinary from "../utils/cloudinaryDelete.js";
 import cloudinary from "../config/cloudinary.js";
 import Comment from "../models/commentModel.js";
+import Like from "../models/likeModel.js";
 
 export const createBlog = async (req, res) => {
   try {
@@ -45,7 +46,7 @@ export const createBlog = async (req, res) => {
 };
 export const getAllBlogs = async (req, res) => {
   try {
-    let { page = 1, limit = 5 } = req.query;
+    let { page = 1, limit = 6 } = req.query;
 
     page = parseInt(page);
     limit = parseInt(limit);
@@ -172,20 +173,6 @@ export const deleteBlog = async (req, res) => {
     }
 
     await blog.deleteOne();
-
-    // // delete image from uploads folder
-    // if (blog.image) {
-    //   const imagePath = `uploads/${blog.image}`;
-
-    //   fs.unlink(imagePath, (err) => {
-    //     if (err) {
-    //       console.log("Failed to delete image:", err.message);
-    //     }
-    //   });
-    // }
-
-    // await Blog.findByIdAndDelete(id);
-
     res.status(200).json({
       success: true,
       message: "Blog deleted successfully",
@@ -212,30 +199,39 @@ export const likeBlog = async (req, res) => {
       });
     }
 
-    const alreadyLiked = blog.likes.some(
-      (like) => like.toString() === userId.toString(),
-    );
+    const existingLike = await Like.findOne({
+      user: userId,
+      blog: id,
+    });
 
-    if (alreadyLiked) {
-      blog.likes = blog.likes.filter(
-        (like) => like.toString() !== userId.toString(),
-      );
-    } else {
-      blog.likes.push(userId);
+    if (existingLike) {
+      await Like.findByIdAndDelete(existingLike._id);
+
+      const likeCount = await Like.countDocuments({ blog: id });
+
+      return res.status(200).json({
+        success: true,
+        message: "Blog unliked successfully",
+        liked: false,
+        likeCount,
+      });
     }
 
-    await blog.save();
+    await Like.create({
+      user: userId,
+      blog: id,
+    });
 
-    res.status(200).json({
+    const likeCount = await Like.countDocuments({ blog: id });
+
+    return res.status(200).json({
       success: true,
-      message: alreadyLiked
-        ? "Blog unliked successfully"
-        : "Blog liked successfully",
-      liked: !alreadyLiked,
-      likeCount: blog.likes.length,
+      message: "Blog liked successfully",
+      liked: true,
+      likeCount,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -246,16 +242,24 @@ export const getLikedBlogs = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const blogs = await Blog.find({ likes: userId })
-      .populate("author", "fullName email")
+    const likes = await Like.find({ user: userId })
+      .populate({
+        path: "blog",
+        populate: {
+          path: "author",
+          select: "fullName email",
+        },
+      })
       .sort({ createdAt: -1 });
 
-    res.status(200).json({
+    const blogs = likes.map((like) => like.blog).filter((blog) => blog);
+
+    return res.status(200).json({
       success: true,
       blogs,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
