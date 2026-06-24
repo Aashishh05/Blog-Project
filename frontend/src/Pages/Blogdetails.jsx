@@ -1,39 +1,100 @@
 import React, { useEffect, useState } from "react";
-import { FaRegHeart, FaRegComment, FaArrowLeft } from "react-icons/fa6";
-import { Link, useParams, useLocation } from "react-router-dom";
+import {
+  FaRegHeart,
+  FaHeart,
+  FaRegComment,
+  FaArrowLeft,
+} from "react-icons/fa6";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { IoShareOutline } from "react-icons/io5";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import axios from "axios";
 
 const BlogDetail = () => {
-  const [blog, setBlog] = useState([]);
-  const [error, setError] = useState(null);
+  const [blog, setBlog] = useState(null);
+  const [likeBlogID, setLikeBlogID] = useState(new Set());
   const [loading, setLoading] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
   const { id } = useParams();
-  const location = useLocation();
+  const nav = useNavigate();
+  const [user] = useState(JSON.parse(localStorage.getItem("user")));
 
+  // Fetch blog data
   const fetchBlog = async () => {
     setLoading(true);
     try {
-      if (location.state?.blog) {
-        setBlog(location.state.blog);
-      } else {
-        const res = await axios.get(`http://localhost:5000/api/blog/get/${id}`);
-        setBlog(res.data.blog);
-        console.log(res.data.blog);
-      }
+      const res = await axios.get(`http://localhost:5000/api/blog/get/${id}`, {
+        withCredentials: true,
+      });
+      setBlog(res.data.blog);
     } catch (error) {
-      console.log(error);
-      setError("Failed to load blog");
+      console.log("Error fetching blog:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch all liked blogs
+  const fetchLikedBlogs = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/likedblog/liked", {
+        withCredentials: true,
+      });
+      const likedBlogIds = new Set((res.data.blogs || []).map((b) => b._id));
+      setLikeBlogID(likedBlogIds);
+    } catch (error) {
+      console.log("Error fetching liked blogs:", error);
+    }
+  };
+
+  // Like/Unlike blog
+  const handleLike = async () => {
+    if (!user) {
+      alert("Please login first");
+      setTimeout(() => nav(`/login`), 1000);
+      return;
+    }
+    if (likeLoading) return;
+    setLikeLoading(true);
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/likedblog/like/${id}`,
+        {},
+        { withCredentials: true },
+      );
+
+      const isLiked = res.data.liked;
+      const newLikeCount = res.data.likeCount;
+
+      // Update liked set
+      setLikeBlogID((prev) => {
+        const newSet = new Set(prev);
+        if (isLiked) {
+          newSet.add(id);
+        } else {
+          newSet.delete(id);
+        }
+        return newSet;
+      });
+
+      // Update like count in blog
+      setBlog((prev) => ({
+        ...prev,
+        likecount: newLikeCount,
+      }));
+    } catch (error) {
+      console.log("Error liking blog:", error);
+      alert("Failed to like blog. Please try again.");
+    } finally {
+      setLikeLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchBlog();
-  }, [id, location]);
+    fetchLikedBlogs();
+  }, [id]);
 
   if (loading || !blog) {
     return (
@@ -43,14 +104,6 @@ const BlogDetail = () => {
           <p className="text-slate-600">Loading...</p>
         </div>
         <Footer />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p>{error}</p>
       </div>
     );
   }
@@ -147,9 +200,21 @@ const BlogDetail = () => {
 
         <div className="py-8 border-t border-b border-slate-200 mb-12">
           <div className="flex flex-wrap items-center gap-4">
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition text-sm font-medium">
-              <FaRegHeart size={16} />
-              <span>10</span>
+            <button
+              onClick={handleLike}
+              disabled={likeLoading}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition text-sm font-medium ${
+                likeBlogID.has(id)
+                  ? "bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-60"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-60"
+              } ${likeLoading ? "cursor-not-allowed" : "cursor-pointer"}`}
+            >
+              {likeBlogID.has(id) ? (
+                <FaHeart size={16} />
+              ) : (
+                <FaRegHeart size={16} />
+              )}
+              <span>{blog.likecount}</span>
             </button>
 
             <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition text-sm font-medium">

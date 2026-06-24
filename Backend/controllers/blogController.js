@@ -184,7 +184,7 @@ export const deleteBlog = async (req, res) => {
     });
   }
 };
-
+  
 export const likeBlog = async (req, res) => {
   try {
     const { id } = req.params;
