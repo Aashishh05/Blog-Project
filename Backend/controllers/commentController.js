@@ -1,5 +1,5 @@
-import Blog from "../models/blogModel";
-import Comment from "../models/commentModel";
+import Blog from "../models/blogModel.js";
+import Comment from "../models/commentModel.js";
 
 export const createComment = async (req, res) => {
   try {
@@ -60,24 +60,17 @@ export const getAllComment = async (req, res) => {
   }
 };
 
-export const getCommentById = async (req, res) => {
+export const getCommentsByBlog = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { blogId } = req.params;
 
-    const comment = await Comment.findById(id)
+    const comments = await Comment.find({ blog: blogId })
       .populate("user", "fullName email")
-      .populate("blog", "title");
-
-    if (!comment) {
-      return res.status(404).json({
-        success: false,
-        message: "Comment not found",
-      });
-    }
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
-      comment,
+      comments,
     });
   } catch (error) {
     res.status(500).json({
@@ -86,6 +79,7 @@ export const getCommentById = async (req, res) => {
     });
   }
 };
+
 export const updateComment = async (req, res) => {
   try {
     const { id } = req.params;

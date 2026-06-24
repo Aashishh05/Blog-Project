@@ -7,9 +7,9 @@ const commentSchema = new mongoose.Schema(
       ref: "Blog",
       required: true,
     },
-    User: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      ref: "User", // match your user model name
       required: true,
     },
     comment: {
@@ -21,5 +21,6 @@ const commentSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-const Comment =  mongoose.model("Comment", commentSchema);
+const Comment = mongoose.model("Comment", commentSchema);
+
 export default Comment;
