@@ -65,12 +65,8 @@ const Login = () => {
                     { withCredentials: true },
                   );
 
-                  console.log(res.data);
-
                   const { user, token, admin } = res.data;
                   const loggedInUser = user || admin;
-
-                  console.log("Logged in user:", loggedInUser);
 
                   dispatch(
                     login({
@@ -79,7 +75,7 @@ const Login = () => {
                     }),
                   );
                   setUser(loggedInUser);
-                  setToken(token)
+                  setToken(token);
 
                   if (loggedInUser.role === "admin") {
                     nav("/admin/dashboard");
