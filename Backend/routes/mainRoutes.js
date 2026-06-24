@@ -9,6 +9,6 @@ const router = express.Router();
 router.use("/auth", authRoutes);
 router.use("/blog", blogRoutes);
 router.use("/category", categoryRoutes);
-router.use("/like", likeRoutes);
+router.use("/likedblog", likeRoutes);
 
 export default router;
