@@ -86,15 +86,8 @@ export const getBlogById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const blog = await Blog.findById(id)
-      .populate("author", "fullName email")
-      .populate({
-        path: "comment",
-        populate: {
-          path: "user",
-          select: "fullName email",
-        },
-      });
+    const blog = await Blog.findById(id).populate("author", "fullName email");
+
     if (!blog) {
       return res.status(404).json({
         success: false,
@@ -102,9 +95,12 @@ export const getBlogById = async (req, res) => {
       });
     }
 
+    const likeCount = await Like.countDocuments({ blog: id });
+
     res.status(200).json({
       success: true,
       blog,
+      likeCount,
     });
   } catch (error) {
     res.status(500).json({
@@ -113,7 +109,6 @@ export const getBlogById = async (req, res) => {
     });
   }
 };
-
 export const updateBlog = async (req, res) => {
   try {
     const { id } = req.params;
@@ -184,7 +179,6 @@ export const deleteBlog = async (req, res) => {
     });
   }
 };
-  
 export const likeBlog = async (req, res) => {
   try {
     const { id } = req.params;
@@ -204,31 +198,35 @@ export const likeBlog = async (req, res) => {
       blog: id,
     });
 
+    // Unlike
     if (existingLike) {
       await Like.findByIdAndDelete(existingLike._id);
 
-      const likeCount = await Like.countDocuments({ blog: id });
+      blog.likes.pull(userId);
+      await blog.save();
 
       return res.status(200).json({
         success: true,
         message: "Blog unliked successfully",
         liked: false,
-        likeCount,
+        likeCount: blog.likes.length,
       });
     }
 
+    // Like
     await Like.create({
       user: userId,
       blog: id,
     });
 
-    const likeCount = await Like.countDocuments({ blog: id });
+    blog.likes.push(userId);
+    await blog.save();
 
     return res.status(200).json({
       success: true,
       message: "Blog liked successfully",
       liked: true,
-      likeCount,
+      likeCount: blog.likes.length,
     });
   } catch (error) {
     return res.status(500).json({
@@ -237,7 +235,6 @@ export const likeBlog = async (req, res) => {
     });
   }
 };
-
 export const getLikedBlogs = async (req, res) => {
   try {
     const userId = req.user._id;

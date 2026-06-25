@@ -16,25 +16,30 @@ const BlogDetail = () => {
   const [likeBlogID, setLikeBlogID] = useState(new Set());
   const [loading, setLoading] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [Likecount, setLikeCount] = useState("")
   const { id } = useParams();
   const nav = useNavigate();
   const [user] = useState(JSON.parse(localStorage.getItem("user")));
-
+console.log(id)
   // Fetch blog data
-  const fetchBlog = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`http://localhost:5000/api/blog/get/${id}`, {
+ const fetchBlog = async () => {
+  setLoading(true);
+  try {
+    const res = await axios.get(
+      `http://localhost:5000/api/blog/get/${id}`,
+      {
         withCredentials: true,
-      });
-      setBlog(res.data.blog);
-    } catch (error) {
-      console.log("Error fetching blog:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+      }
+    );
+    console.log(res)
+    setBlog(res.data.blog);
+    setLikeCount(res.data.likeCount);
+  } catch (error) {
+    console.log("Error fetching blog:", error);
+  } finally {
+    setLoading(false);
+  }
+};
   // Fetch all liked blogs
   const fetchLikedBlogs = async () => {
     try {
@@ -66,6 +71,8 @@ const BlogDetail = () => {
 
       const isLiked = res.data.liked;
       const newLikeCount = res.data.likeCount;
+      console.log(newLikeCount)
+      setLikeCount(res.data.likeCount)
 
       // Update liked set
       setLikeBlogID((prev) => {
@@ -90,6 +97,7 @@ const BlogDetail = () => {
       setLikeLoading(false);
     }
   };
+  console.log(Likecount)
 
   useEffect(() => {
     fetchBlog();
@@ -214,7 +222,7 @@ const BlogDetail = () => {
               ) : (
                 <FaRegHeart size={16} />
               )}
-              <span>{blog.likecount}</span>
+              <span>{Likecount}</span>
             </button>
 
             <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition text-sm font-medium">

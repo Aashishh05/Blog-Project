@@ -7,39 +7,46 @@ const blogSchema = new mongoose.Schema(
       required: [true, "Title is required"],
       trim: true,
     },
+
     subtitle: {
       type: String,
       trim: true,
     },
+
     content: {
       type: String,
       required: [true, "Content is required"],
     },
+
     image: {
       url: String,
       public_id: String,
     },
+
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: "Category",
+      required: true,
     },
+
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    comment: [
+    // Users who liked the blog
+    likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Comment",
+        ref: "User",
       },
     ],
+
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 const Blog = mongoose.model("Blog", blogSchema);
