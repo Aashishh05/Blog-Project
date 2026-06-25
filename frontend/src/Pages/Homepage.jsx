@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
+import { FaSearch } from "react-icons/fa";
 import axios from "axios";
 
 const Homepage = () => {
@@ -11,12 +12,15 @@ const Homepage = () => {
   const [blog, setBlog] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search") || "";
 
   // Calculate reading time based on word count
   const calculateReadingTime = (content) => {
     if (!content) return "1 min";
     const words = content.trim().split(/\s+/).length;
-    const minutes = Math.ceil(words / 200); // Average reading speed: 200 words per minute
+    const minutes = Math.ceil(words / 200);
     return `${minutes} min`;
   };
 
@@ -24,6 +28,13 @@ const Homepage = () => {
     setLoading(true);
     setError(null);
     try {
+      if (search) {
+        const res = await axios.get(
+          `http://localhost:5000/api/blog/search?search=${search}`,
+        );
+        setBlog(res.data.blogs);
+        return;
+      }
       const category_res = await axios.get(
         `http://localhost:5000/api/category/get`,
       );
@@ -32,9 +43,6 @@ const Homepage = () => {
       setCategory(category_res.data.categories);
       setBlog(blog_res.data.blogs);
 
-      // Minimum loading time for better UX (shows animations)
-      // Increase the number (in milliseconds) to make it slower
-      // 1000 = 1 second, 2000 = 2 seconds, 3000 = 3 seconds
       await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
       console.log(error);
@@ -46,15 +54,20 @@ const Homepage = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [search]);
 
-  const filteredBlogs =
-    activeCategory === "all"
-      ? blog
-      : blog.filter((item) => item.category === activeCategory);
+  // Filter blogs based on active category and search query (like in Blogs.jsx)
+  const filteredBlogs = blog.filter((blogItem) => {
+    const matchesCategory =
+      activeCategory === "all" || blogItem.category?.name === activeCategory;
+    const matchesSearch =
+      blogItem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      blogItem.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
-  // Use the first blog as featured
-  const featuredArticle = blog.length > 0 ? blog[0] : null;
+  // Use the first filtered blog as featured
+  const featuredArticle = filteredBlogs.length > 0 ? filteredBlogs[0] : null;
 
   return (
     <div className="min-h-screen bg-white">
@@ -84,7 +97,7 @@ const Homepage = () => {
             transform: translateY(15px);
           }
           to { 
-            opacity: 0.5; 
+            opacity: 1; 
             transform: translateY(0);
           }
         }
@@ -211,7 +224,7 @@ const Homepage = () => {
       )}
 
       <section className="px-5 md:px-10 pt-16 md:pt-24">
-        <div className="max-w-5xl mx-auto mb-12">
+        <div className="max-w-5xl mx-auto mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setActiveCategory("all")}
@@ -223,12 +236,13 @@ const Homepage = () => {
             >
               All
             </button>
+
             {category.map((cat) => (
               <button
                 key={cat._id}
-                onClick={() => setActiveCategory(cat._id)}
+                onClick={() => setActiveCategory(cat.name)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  activeCategory === cat._id
+                  activeCategory === cat.name
                     ? "bg-slate-900 text-white"
                     : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                 }`}
@@ -236,6 +250,21 @@ const Homepage = () => {
                 {cat.name.charAt(0).toUpperCase() + cat.name.slice(1)}
               </button>
             ))}
+          </div>
+
+          <div className="relative w-full md:w-80">
+            <input
+              type="text"
+              placeholder="Search articles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 border border-slate-200 bg-white rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition-all"
+            />
+
+            <FaSearch
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              size={16}
+            />
           </div>
         </div>
 
@@ -248,6 +277,7 @@ const Homepage = () => {
                   Loading articles...
                 </p>
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
                 {[1, 2, 3, 4, 5, 6].map((item) => (
                   <div
@@ -274,9 +304,12 @@ const Homepage = () => {
               <p className="text-red-500">{error}</p>
             </div>
           ) : filteredBlogs.length === 0 ? (
-            <div className="flex items-center justify-center py-12">
-              <p className="text-slate-500">
-                No articles found in this category
+            <div className="text-center py-20 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50 fade-in">
+              <h3 className="text-lg font-semibold text-slate-800 mb-1">
+                No articles found
+              </h3>
+              <p className="text-sm text-slate-500">
+                Try tweaking your search keywords or choosing another category.
               </p>
             </div>
           ) : (
@@ -295,15 +328,14 @@ const Homepage = () => {
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
 
                     <div className="p-6 flex flex-col flex-grow">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-[11px] font-semibold tracking-widest uppercase text-teal-600">
+                        <span className="text-[11px] font-semibold uppercase text-teal-600">
                           {item.category?.name || "Uncategorized"}
                         </span>
-                        <span className="text-[11px] text-slate-400 font-medium">
+                        <span className="text-[11px] text-slate-400">
                           {new Date(item.createdAt).toLocaleDateString()}
                         </span>
                       </div>
@@ -316,7 +348,7 @@ const Homepage = () => {
                         {item.subtitle}
                       </p>
 
-                      <p className="text-slate-600 text-sm mb-6 flex-grow leading-relaxed line-clamp-2">
+                      <p className="text-slate-600 text-sm mb-6 flex-grow line-clamp-2">
                         {item.content}
                       </p>
 
