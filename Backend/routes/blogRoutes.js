@@ -6,6 +6,7 @@ import {
   getBlogById,
   getLikedBlogs,
   likeBlog,
+  searchBlog,
   updateBlog,
 } from "../controllers/blogController.js";
 import { adminOnly, protect } from "../middleware/authMiddleware.js";
@@ -16,6 +17,7 @@ const router = express.Router();
 router.post("/create", protect, upload.single("image"), adminOnly, createBlog);
 router.get("/get",getAllBlogs);
 router.get("/get/:id", getBlogById);
+router.get("/search",searchBlog)
 router.put(
   "/update/:id",
   protect,

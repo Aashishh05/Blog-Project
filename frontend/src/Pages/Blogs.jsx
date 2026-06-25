@@ -1,26 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
+import { FaSearch } from "react-icons/fa";
 import axios from "axios";
 
 const Blogs = () => {
   const [activeCategory, setActiveCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState([]);
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search") || "";
 
   const calculateReadingTime = (content) => {
     if (!content) return "1 min";
     const words = content.trim().split(/\s+/).length;
-    const minutes = Math.ceil(words / 200); 
+    const minutes = Math.ceil(words / 200);
     return `${minutes} min`;
   };
 
   const fetchData = async () => {
     setLoading(true);
     try {
+      if (search) {
+        const res = await axios.get(
+          `http://localhost:5000/api/blog/search?search=${search}`,
+        );
+
+        setBlogs(res.data.blogs);
+        return;
+      }
+
       const res_categories = await axios.get(
         `http://localhost:5000/api/category/get`,
       );
@@ -39,7 +51,7 @@ const Blogs = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [search]);
 
   // Filter blogs based on active category and search query
   const filteredBlogs = blogs.filter((blog) => {
@@ -85,19 +97,39 @@ const Blogs = () => {
         }
       `}</style>
       <Navbar />
-
       <section className="px-5 md:px-10 pt-16 md:pt-24 pb-12 border-b border-slate-100 fade-in">
-        <div className="max-w-5xl mx-auto">
-          <span className="text-xs font-semibold text-teal-600 uppercase tracking-widest block mb-3">
-            Our Archive
-          </span>
-          <h1 className="text-5xl md:text-6xl font-bold text-slate-900 tracking-tight mb-6">
-            All Articles
-          </h1>
-          <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
-            Deep dives, essays, and guides on building for the modern web,
-            pixel-perfect design, and creative workflows.
-          </p>
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+          {/* Left Content */}
+          <div>
+            <span className="text-xs font-semibold text-teal-600 uppercase tracking-widest block mb-3">
+              Our Archive
+            </span>
+
+            <h1 className="text-5xl md:text-6xl font-bold text-slate-900 tracking-tight mb-6">
+              All Articles
+            </h1>
+
+            <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
+              Deep dives, essays, and guides on building for the modern web,
+              pixel-perfect design, and creative workflows.
+            </p>
+          </div>
+
+          {/* Right Search Bar */}
+          <div className="relative w-full md:w-80">
+            <input
+              type="text"
+              placeholder="Search articles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 border border-slate-200 bg-white rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition-all"
+            />
+
+            <FaSearch
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              size={16}
+            />
+          </div>
         </div>
       </section>
 
@@ -127,16 +159,6 @@ const Blogs = () => {
                 {cat.name.charAt(0).toUpperCase() + cat.name.slice(1)}
               </button>
             ))}
-          </div>
-
-          <div className="w-full md:w-80">
-            <input
-              type="text"
-              placeholder="Search articles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 bg-white rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition-all"
-            />
           </div>
         </div>
       </section>
