@@ -12,6 +12,7 @@ import AddCategories from "./Pages/Admin/AddCategories";
 import AdminBlogs from "./Pages/Admin/AdminBlogs";
 import Blogs from "./Pages/Blogs";
 import Footer from "./Components/Footer";
+import LikedBlogs from "./Pages/User/LikedBlogs";
 const App = () => {
   return (
     <div>
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/blogdetails/:id" element={<Blogdetails />} />
         <Route path="/blogs" element={<Blogs />} />
+        <Route path="/liked" element={<LikedBlogs />} />
 
         <Route element={<ProtectedRoutes allowedRoles={["admin"]} />}>
           <Route path="/blogform" element={<BlogForm />} />
