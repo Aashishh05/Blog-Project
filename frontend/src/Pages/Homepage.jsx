@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import React, { useEffect, useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import { FaSearch } from "react-icons/fa";
@@ -13,8 +13,12 @@ const Homepage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchParams] = useSearchParams();
-  const search = searchParams.get("search") || "";
+  
+  // Dropdown search states
+  const [searchResults, setSearchResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const debounceTimer = useRef(null);
 
   // Calculate reading time based on word count
   const calculateReadingTime = (content) => {
@@ -24,17 +28,11 @@ const Homepage = () => {
     return `${minutes} min`;
   };
 
+  // Fetch all blogs and categories on mount
   const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
-      if (search) {
-        const res = await axios.get(
-          `http://localhost:5000/api/blog/search?search=${search}`,
-        );
-        setBlog(res.data.blogs);
-        return;
-      }
       const category_res = await axios.get(
         `http://localhost:5000/api/category/get`,
       );
@@ -52,11 +50,63 @@ const Homepage = () => {
     }
   };
 
+  // Handle dropdown search with debouncing
+  const handleSearch = async (query) => {
+    setSearchQuery(query);
+
+    // Clear previous timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    if (!query.trim()) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    setSearchLoading(true);
+
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/blog/search?search=${query}`
+        );
+        setSearchResults(res.data.blogs || []);
+        setShowDropdown(true);
+      } catch (err) {
+        console.log("Search error:", err);
+        setSearchResults([]);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 300); // 300ms debounce
+  };
+
+  // Handle selecting a blog from dropdown
+  const handleSelectBlog = (blog) => {
+    setSearchQuery("");
+    setShowDropdown(false);
+    setSearchResults([]);
+  };
+
   useEffect(() => {
     fetchData();
-  }, [search]);
+  }, []);
 
-  // Filter blogs based on active category and search query (like in Blogs.jsx)
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (e.target.closest(".search-container") === null) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Filter blogs based on active category and search query
   const filteredBlogs = blog.filter((blogItem) => {
     const matchesCategory =
       activeCategory === "all" || blogItem.category?.name === activeCategory;
@@ -252,19 +302,82 @@ const Homepage = () => {
             ))}
           </div>
 
-          <div className="relative w-full md:w-80">
-            <input
-              type="text"
-              placeholder="Search articles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 border border-slate-200 bg-white rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition-all"
-            />
+          {/* Search Bar with Dropdown */}
+          <div className="relative w-full md:w-80 search-container">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search articles..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                onFocus={() => {
+                  if (searchQuery.trim()) {
+                    setShowDropdown(true);
+                  }
+                }}
+                className="w-full pl-11 pr-4 py-3 border border-slate-200 bg-white rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition-all"
+              />
 
-            <FaSearch
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              size={16}
-            />
+              <FaSearch
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                size={16}
+              />
+
+              {/* Dropdown Results */}
+              {showDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
+                  {searchLoading ? (
+                    <div className="p-4 text-center text-slate-500 text-sm">
+                      Searching...
+                    </div>
+                  ) : searchResults.length > 0 ? (
+                    <div className="p-2">
+                      {searchResults.map((blogItem) => (
+                        <Link
+                          key={blogItem._id}
+                          to={`/blogdetails/${blogItem._id}`}
+                          state={{ blog: blogItem }}
+                          onClick={() => handleSelectBlog(blogItem)}
+                          className="block"
+                        >
+                          <div className="w-full text-left p-4 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-100 last:border-b-0">
+                            <div className="flex items-start gap-3">
+                              {blogItem.image?.url && (
+                                <img
+                                  src={blogItem.image.url}
+                                  alt={blogItem.title}
+                                  className="w-12 h-12 rounded object-cover flex-shrink-0"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-slate-900 text-sm truncate">
+                                  {blogItem.title}
+                                </h4>
+                                <p className="text-xs text-slate-500 truncate mt-1">
+                                  {blogItem.subtitle}
+                                </p>
+                                <div className="flex items-center gap-3 mt-1">
+                                  <span className="text-xs font-medium text-teal-600">
+                                    {blogItem.category?.name || "Uncategorized"}
+                                  </span>
+                                  <span className="text-xs text-slate-400">
+                                    {calculateReadingTime(blogItem.content)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-slate-500 text-sm">
+                      No articles found
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
