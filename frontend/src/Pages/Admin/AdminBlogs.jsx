@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Sidebar from "../../Components/Sidebar";
 import { FaBars, FaSearch } from "react-icons/fa";
@@ -11,20 +11,28 @@ const AdminBlogs = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const nav = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const debounceTimer = useRef(null);
 
-  const fetchData = async () => {
+  // Fetch all blogs and categories on mount
+  const fetchAllData = async () => {
     setLoading(true);
     setError(null);
     try {
       const [categoryRes, blogsRes] = await Promise.all([
         axios.get("http://localhost:5000/api/category/get"),
-        axios.get("http://localhost:5000/api/blog/get", { withCredentials: true }),
+        axios.get("http://localhost:5000/api/blog/get", {
+          withCredentials: true,
+        }),
       ]);
-      
+
       setCategory(categoryRes.data.categories || []);
       setBlogs(blogsRes.data.blogs || []);
-      
-      // Artifical delay matching dashboard structure for standard layout pacing
+
+      // Artificial delay matching dashboard structure for standard layout pacing
       await new Promise((resolve) => setTimeout(resolve, 800));
     } catch (err) {
       console.log(err);
@@ -34,9 +42,50 @@ const AdminBlogs = () => {
     }
   };
 
+  // Fetch search results with debouncing
+  const handleSearch = async (query) => {
+    setSearchQuery(query);
+
+    // Clear previous timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    if (!query.trim()) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    setSearchLoading(true);
+
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/blog/search?search=${query}`
+        );
+        setSearchResults(res.data.blogs || []);
+        setShowDropdown(true);
+      } catch (err) {
+        console.log("Search error:", err);
+        setSearchResults([]);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 300); // 300ms debounce
+  };
+
+  // Handle selecting a blog from dropdown
+  const handleSelectBlog = (blog) => {
+    setSearchQuery("");
+    setShowDropdown(false);
+    setSearchResults([]);
+    nav(`/blogdetails/${blog._id}`);
+  };
+
   const handleDelete = async (id) => {
     const confirmed = await window.confirm(
-      "Are you sure want to delete this blog?"
+      "Are you sure you want to delete this blog?"
     );
 
     if (!confirmed) return;
@@ -57,7 +106,19 @@ const AdminBlogs = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchAllData();
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (e.target.closest(".search-container") === null) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Custom Card Skeleton for Premium Grid Styling UI Loading Transitions
@@ -144,15 +205,71 @@ const AdminBlogs = () => {
               </p>
             </div>
 
-            <div className="relative w-full md:w-80">
-              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search articles..."
-                className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 
-                focus:outline-none focus:ring focus:ring-teal-500
-                focus:border-slate-400 transition"
-              />
+            {/* Search Container with Dropdown */}
+            <div className="relative w-full md:w-80 search-container">
+              <div className="relative">
+                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  onFocus={() => {
+                    if (searchQuery.trim()) {
+                      setShowDropdown(true);
+                    }
+                  }}
+                  placeholder="Search articles..."
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 
+                  focus:outline-none focus:ring focus:ring-teal-500
+                  focus:border-slate-400 transition"
+                />
+
+                {/* Dropdown Results */}
+                {showDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
+                    {searchLoading ? (
+                      <div className="p-4 text-center text-slate-500 text-sm">
+                        Searching...
+                      </div>
+                    ) : searchResults.length > 0 ? (
+                      <div className="p-2">
+                        {searchResults.map((blog) => (
+                          <button
+                            key={blog._id}
+                            onClick={() => handleSelectBlog(blog)}
+                            className="w-full text-left p-4 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-100 last:border-b-0"
+                          >
+                            <div className="flex items-start gap-3">
+                              {blog.image?.url && (
+                                <img
+                                  src={blog.image.url}
+                                  alt={blog.title}
+                                  className="w-12 h-12 rounded object-cover flex-shrink-0"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-slate-900 text-sm truncate">
+                                  {blog.title}
+                                </h4>
+                                <p className="text-xs text-slate-500 truncate mt-1">
+                                  {blog.subtitle}
+                                </p>
+                                <span className="text-xs font-medium text-teal-600 mt-1 inline-block">
+                                  {blog.category?.name || "Uncategorized"}
+                                </span>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4 text-center text-slate-500 text-sm">
+                        No articles found
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -166,23 +283,21 @@ const AdminBlogs = () => {
 
           <div className="mb-12">
             <div className="flex flex-wrap gap-3">
-              {loading ? (
-                [1, 2, 3, 4].map((idx) => (
-                  <div
-                    key={idx}
-                    className="w-20 h-9 bg-slate-200 rounded-full animate-pulse animate-shimmer"
-                  />
-                ))
-              ) : (
-                category.map((cat) => (
-                  <button
-                    key={cat._id}
-                    className="px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
-                  >
-                    {cat.name.charAt(0).toUpperCase() + cat.name.slice(1)}
-                  </button>
-                ))
-              )}
+              {loading
+                ? [1, 2, 3, 4].map((idx) => (
+                    <div
+                      key={idx}
+                      className="w-20 h-9 bg-slate-200 rounded-full animate-pulse animate-shimmer"
+                    />
+                  ))
+                : category.map((cat) => (
+                    <button
+                      key={cat._id}
+                      className="px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+                    >
+                      {cat.name.charAt(0).toUpperCase() + cat.name.slice(1)}
+                    </button>
+                  ))}
             </div>
           </div>
 
@@ -223,7 +338,7 @@ const AdminBlogs = () => {
 
                       <div className="flex items-center justify-between pt-4 border-t border-slate-100 mb-4">
                         <Link
-                          to="/blogdetails"
+                          to={`/blogdetails/${item._id}`}
                           className="text-slate-400 hover:text-teal-600 transition-colors text-sm font-medium"
                         >
                           View →
