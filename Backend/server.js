@@ -5,11 +5,13 @@ import mainRoutes from "./routes/mainRoutes.js";
 import cookieParser from "cookie-parser";
 import cloudinary from "./config/cloudinary.js";
 import cors from "cors";
+import path from "path"
 dotenv.config();
 
 connectDB();
 const app = express();
 
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use(
   cors({
     origin: `http://localhost:5173`,

@@ -29,6 +29,7 @@ const AdminBlogs = () => {
         }),
       ]);
 
+      console.log(blogsRes)
       setCategory(categoryRes.data.categories || []);
       setBlogs(blogsRes.data.blogs || []);
 

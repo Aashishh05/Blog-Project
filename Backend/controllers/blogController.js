@@ -1,10 +1,12 @@
 import Blog from "../models/blogModel.js";
 import fs from "fs";
+import path from "path";
 import UploadToCloudinary from "../utils/cloudinaryUploads.js";
 import DeleteFromCloudinary from "../utils/cloudinaryDelete.js";
-import cloudinary from "../config/cloudinary.js";
 import Comment from "../models/commentModel.js";
 import Like from "../models/likeModel.js";
+
+// ================= CREATE BLOG =================
 
 export const createBlog = async (req, res) => {
   try {
@@ -18,17 +20,23 @@ export const createBlog = async (req, res) => {
     }
 
     let image = {};
-
+    console.log(req.file.path);
     if (req.file) {
-      image = await UploadToCloudinary(req.file.path, "Blog");
+      const uploadedImage = await UploadToCloudinary(req.file.path, "Blog");
+
+      image = {
+        url: uploadedImage.url,
+        public_id: uploadedImage.public_id,
+        path: req.file.path,
+      };
     }
 
     const blog = await Blog.create({
       title,
       subtitle,
       content,
-      image,
       category,
+      image,
       author: req.user._id,
     });
 
@@ -44,33 +52,47 @@ export const createBlog = async (req, res) => {
     });
   }
 };
+
+// ================= GET ALL BLOGS =================
+
 export const getAllBlogs = async (req, res) => {
   try {
     let { page = 1, limit = 6 } = req.query;
 
-    page = parseInt(page);
-    limit = parseInt(limit);
+    page = Number(page);
+    limit = Number(limit);
 
     const skip = (page - 1) * limit;
+
     const blogs = await Blog.find()
+
       .populate("author", "fullName email")
-      .sort({ createdAt: -1 })
+
+      .sort({
+        createdAt: -1,
+      })
+
       .skip(skip)
       .limit(limit);
 
     const totalBlogs = await Blog.countDocuments();
 
-    const totalPages = Math.ceil(totalBlogs / limit);
-
     res.status(200).json({
       success: true,
+
       blogs,
+
       pagination: {
         totalBlogs,
-        totalPages,
+
+        totalPages: Math.ceil(totalBlogs / limit),
+
         currentPage: page,
+
         limit,
-        hasNextPage: page < totalPages,
+
+        hasNextPage: page < Math.ceil(totalBlogs / limit),
+
         hasPrevPage: page > 1,
       },
     });
@@ -82,12 +104,13 @@ export const getAllBlogs = async (req, res) => {
   }
 };
 
+// ================= SEARCH BLOG =================
+
 export const searchBlog = async (req, res) => {
   try {
     const { search = "" } = req.query;
-    const keyword = search?.trim();
 
-    if (!keyword) {
+    if (!search.trim()) {
       return res.status(200).json({
         success: true,
         blogs: [],
@@ -98,13 +121,14 @@ export const searchBlog = async (req, res) => {
       $or: [
         {
           title: {
-            $regex: keyword,
+            $regex: search,
             $options: "i",
           },
         },
+
         {
           content: {
-            $regex: keyword,
+            $regex: search,
             $options: "i",
           },
         },
@@ -123,11 +147,13 @@ export const searchBlog = async (req, res) => {
   }
 };
 
+// ================= GET BLOG BY ID =================
+
 export const getBlogById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const blog = await Blog.findById(req.params.id)
 
-    const blog = await Blog.findById(id).populate("author", "fullName email");
+      .populate("author", "fullName email");
 
     if (!blog) {
       return res.status(404).json({
@@ -136,7 +162,9 @@ export const getBlogById = async (req, res) => {
       });
     }
 
-    const likeCount = await Like.countDocuments({ blog: id });
+    const likeCount = await Like.countDocuments({
+      blog: req.params.id,
+    });
 
     res.status(200).json({
       success: true,
@@ -150,11 +178,12 @@ export const getBlogById = async (req, res) => {
     });
   }
 };
+
+// ================= UPDATE BLOG =================
+
 export const updateBlog = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const blog = await Blog.findById(id);
+    const blog = await Blog.findById(req.params.id);
 
     if (!blog) {
       return res.status(404).json({
@@ -164,23 +193,46 @@ export const updateBlog = async (req, res) => {
     }
 
     if (req.file) {
+      // delete old cloudinary image
+
       if (blog.image?.public_id) {
         await DeleteFromCloudinary(blog.image.public_id);
       }
-      blog.image = await UploadToCloudinary(req.file.path);
+
+      // delete old local file
+
+      if (blog.image?.local_path && fs.existsSync(blog.image.local_path)) {
+        fs.unlinkSync(blog.image.local_path);
+      }
+
+      // upload new image
+
+      const uploadedImage = await UploadToCloudinary(req.file.path, "Blog");
+
+      blog.image = {
+        url: uploadedImage.url,
+
+        public_id: uploadedImage.public_id,
+
+        local_path: req.file.path,
+      };
     }
 
-    const { title, content, category } = req.body;
+    blog.title = req.body.title || blog.title;
 
-    if (title) blog.title = title;
-    if (content) blog.content = content;
-    if (category) blog.category = category;
+    blog.subtitle = req.body.subtitle || blog.subtitle;
+
+    blog.content = req.body.content || blog.content;
+
+    blog.category = req.body.category || blog.category;
 
     await blog.save();
 
     res.status(200).json({
       success: true,
+
       message: "Blog updated successfully",
+
       blog,
     });
   } catch (error) {
@@ -191,11 +243,11 @@ export const updateBlog = async (req, res) => {
   }
 };
 
+// ================= DELETE BLOG =================
+
 export const deleteBlog = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const blog = await Blog.findById(id);
+    const blog = await Blog.findById(req.params.id);
 
     if (!blog) {
       return res.status(404).json({
@@ -204,11 +256,20 @@ export const deleteBlog = async (req, res) => {
       });
     }
 
+    // delete cloudinary image
+
     if (blog.image?.public_id) {
       await DeleteFromCloudinary(blog.image.public_id);
     }
+    console.log(blog);
+    // delete local uploads image
+
+    if (blog.image?.path && fs.existsSync(blog.image.path)) {
+      fs.unlinkSync(blog.image.path);
+    }
 
     await blog.deleteOne();
+
     res.status(200).json({
       success: true,
       message: "Blog deleted successfully",
@@ -220,12 +281,12 @@ export const deleteBlog = async (req, res) => {
     });
   }
 };
+
+// ================= LIKE / UNLIKE BLOG =================
+
 export const likeBlog = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userId = req.user._id;
-
-    const blog = await Blog.findById(id);
+    const blog = await Blog.findById(req.params.id);
 
     if (!blog) {
       return res.status(404).json({
@@ -235,69 +296,86 @@ export const likeBlog = async (req, res) => {
     }
 
     const existingLike = await Like.findOne({
-      user: userId,
-      blog: id,
+      user: req.user._id,
+
+      blog: req.params.id,
     });
 
-    // Unlike
     if (existingLike) {
-      await Like.findByIdAndDelete(existingLike._id);
+      await existingLike.deleteOne();
 
-      blog.likes.pull(userId);
+      blog.likes.pull(req.user._id);
+
       await blog.save();
 
       return res.status(200).json({
         success: true,
-        message: "Blog unliked successfully",
+
+        message: "Blog unliked",
+
         liked: false,
+
         likeCount: blog.likes.length,
       });
     }
 
-    // Like
     await Like.create({
-      user: userId,
-      blog: id,
+      user: req.user._id,
+
+      blog: req.params.id,
     });
 
-    blog.likes.push(userId);
+    blog.likes.push(req.user._id);
+
     await blog.save();
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      message: "Blog liked successfully",
+
+      message: "Blog liked",
+
       liked: true,
+
       likeCount: blog.likes.length,
     });
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
+
+// ================= GET LIKED BLOGS =================
+
 export const getLikedBlogs = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const likes = await Like.find({
+      user: req.user._id,
+    })
 
-    const likes = await Like.find({ user: userId })
       .populate({
         path: "blog",
+
         populate: {
           path: "author",
+
           select: "fullName email",
         },
       })
-      .sort({ createdAt: -1 });
 
-    const blogs = likes.map((like) => like.blog).filter((blog) => blog);
+      .sort({
+        createdAt: -1,
+      });
 
-    return res.status(200).json({
+    const blogs = likes.map((item) => item.blog).filter(Boolean);
+
+    res.status(200).json({
       success: true,
       blogs,
     });
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: error.message,
     });

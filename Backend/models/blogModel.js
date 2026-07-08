@@ -21,6 +21,7 @@ const blogSchema = new mongoose.Schema(
     image: {
       url: String,
       public_id: String,
+      path:String
     },
 
     category: {
