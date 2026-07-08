@@ -17,6 +17,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "password is required"],
     },
+    otp:{
+      type:String,
+    },
+    otpExpire:{
+      type:Date,
+    },
     profileImage: {
       type: String,
       default: "",

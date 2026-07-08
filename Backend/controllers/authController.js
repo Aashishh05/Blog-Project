@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../models/userModel.js";
 import { generateToken } from "../utils/jwt.js";
+import { transporter } from "../config/nodeMailer.js";
 
 // Register User
 export const registerUser = async (req, res) => {
@@ -25,14 +26,24 @@ export const registerUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const generateOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
     const newUser = await User.create({
       fullName,
       email,
       password: hashedPassword,
+      otp,
+      otpExpire: Date.now() + 10 * 60 * 1000,
       role: role || "user",
     });
 
+    await transporter.sendMail({
+      from: process.env.SMTP_SENDER,
+      to: email,
+      subject: "try this otp",
+      text: "this is your otp",
+      html: `${otp}`,
+    });
     return res.status(201).json({
       success: true,
       message: "User registered successfully",
@@ -72,8 +83,6 @@ export const loginUser = async (req, res) => {
       });
     }
 
- 
-
     const checkPassword = await bcrypt.compare(password, user.password);
 
     if (!checkPassword) {
@@ -85,7 +94,6 @@ export const loginUser = async (req, res) => {
 
     // ✅ same token logic (FIX env key consistency)
     const token = generateToken(user._id, process.env.secret_key, "7d");
-    
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -146,6 +154,131 @@ export const logoutUser = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+};
+
+export const verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!user.otp || !user.otpExpire) {
+      return res.status(400).json({
+        success: false,
+        message: "No OTP found. Please request a new OTP.",
+      });
+    }
+
+    if (Date.now() > user.otpExpire) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired.",
+      });
+    }
+
+    if (user.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully.",
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await Register.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.otp = otp;
+    user.otpExpire = Date.now() + 10 * 60 * 1000;
+
+    await user.save();
+
+    await sendEmail({
+      to: user.email,
+      subject: "Password Reset OTP",
+      html: `
+        <h2>Password Reset</h2>
+        <p>Your OTP is:</p>
+        <h1>${otp}</h1>
+        <p>This OTP is valid for 10 minutes.</p>
+      `,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent successfully.",
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.password = await bcrypt.hash(password, 10);
+
+    user.otp = null;
+    user.otpExpire = null;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successfully.",
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
     });
   }
 };
