@@ -1,8 +1,14 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+console.log(process.env.SMTP_USER);
+console.log(process.env.SMTP_PASS);
 
 export const transporter = nodemailer.createTransport({
-  host: "smtp.example.com",
-  port: 578,
+  host: "smtp.gmail.com",
+  port: 587,
   secure: false,
   auth: {
     user: process.env.SMTP_USER,
@@ -10,7 +16,7 @@ export const transporter = nodemailer.createTransport({
   },
 });
 
-transporter.verify((error, success) => {
+transporter.verify((error) => {
   if (error) {
     console.log("SMTP Error", error);
   } else {

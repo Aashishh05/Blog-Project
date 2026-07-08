@@ -6,7 +6,7 @@ import { transporter } from "../config/nodeMailer.js";
 // Register User
 export const registerUser = async (req, res) => {
   try {
-    const { fullName, email, password, role } = req.body;
+    const { fullName, email, password, role ,otp} = req.body;
     console.log(req.body);
     if (!fullName || !email || !password) {
       return res.status(400).json({
@@ -204,11 +204,11 @@ export const verifyOTP = async (req, res) => {
   }
 };
 
-const forgotPassword = async (req, res) => {
+export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const user = await Register.findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({
@@ -224,7 +224,7 @@ const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    await sendEmail({
+    await transporter.sendMail({
       to: user.email,
       subject: "Password Reset OTP",
       html: `
@@ -251,7 +251,14 @@ const forgotPassword = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, otp, password } = req.body;
+
+    if (!email || !otp || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, OTP and password are required",
+      });
+    }
 
     const user = await User.findOne({ email });
 
@@ -262,8 +269,34 @@ export const resetPassword = async (req, res) => {
       });
     }
 
+    // Check if OTP exists
+    if (!user.otp) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP not found. Please request a new OTP",
+      });
+    }
+
+    // Check OTP expiry
+    if (user.otpExpire < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired. Please request a new OTP",
+      });
+    }
+
+    // Verify OTP
+    if (user.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    // Hash new password
     user.password = await bcrypt.hash(password, 10);
 
+    // Clear OTP after successful reset
     user.otp = null;
     user.otpExpire = null;
 
@@ -271,8 +304,9 @@ export const resetPassword = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Password reset successfully.",
+      message: "Password reset successfully",
     });
+
   } catch (error) {
     console.log(error);
 
