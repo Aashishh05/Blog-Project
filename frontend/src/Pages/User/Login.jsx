@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import { Formik } from "formik";
 import Navbar from "../../Components/Navbar";
 
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaExclamationCircle } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
@@ -24,6 +24,7 @@ const Login = () => {
   const nav = useNavigate();
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   return (
     <>
@@ -54,10 +55,18 @@ const Login = () => {
               <h1 className="text-sm italic">TECHBLOG</h1>
             </div>
 
+            {loginError && (
+              <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-5">
+                <FaExclamationCircle className="flex-shrink-0" />
+                <span>{loginError}</span>
+              </div>
+            )}
+
             <Formik
               initialValues={{ email: "", password: "" }}
               validationSchema={LoginSchema}
               onSubmit={async (values) => {
+                setLoginError("");
                 try {
                   const res = await axios.post(
                     "http://localhost:5000/api/auth/login",
@@ -85,6 +94,21 @@ const Login = () => {
                 } catch (error) {
                   console.log("STATUS:", error.response?.status);
                   console.log("DATA:", error.response?.data);
+
+                  const status = error.response?.status;
+                  const serverMessage = error.response?.data?.message;
+
+                  if (status === 401 || status === 400) {
+                    setLoginError(
+                      serverMessage || "Incorrect email or password. Please try again.",
+                    );
+                  } else if (status === 404) {
+                    setLoginError(serverMessage || "No account found with this email.");
+                  } else if (!error.response) {
+                    setLoginError("Unable to reach the server. Please try again later.");
+                  } else {
+                    setLoginError(serverMessage || "Something went wrong. Please try again.");
+                  }
                 }
               }}
             >
@@ -101,7 +125,10 @@ const Login = () => {
                         type="email"
                         name="email"
                         value={values.email}
-                        onChange={handleChange}
+                        onChange={(e) => {
+                          setLoginError("");
+                          handleChange(e);
+                        }}
                         placeholder="your@email.com"
                         className="w-full pl-11 pr-4 py-3 text-sm bg-white/60 border border-slate-200 rounded-lg focus:ring-1 focus:ring-cyan-500 outline-none"
                       />
@@ -126,7 +153,10 @@ const Login = () => {
                         type={showPassword ? "text" : "password"}
                         name="password"
                         value={values.password}
-                        onChange={handleChange}
+                        onChange={(e) => {
+                          setLoginError("");
+                          handleChange(e);
+                        }}
                         placeholder="Enter your password"
                         className="w-full pl-11 pr-12 py-3 text-sm bg-white/60 border border-slate-200 rounded-lg focus:ring-1 focus:ring-cyan-500 outline-none"
                       />
