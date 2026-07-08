@@ -6,7 +6,7 @@ import { transporter } from "../config/nodeMailer.js";
 // Register User
 export const registerUser = async (req, res) => {
   try {
-    const { fullName, email, password, role ,otp} = req.body;
+    const { fullName, email, password, role, otp } = req.body;
     console.log(req.body);
     if (!fullName || !email || !password) {
       return res.status(400).json({
@@ -268,15 +268,13 @@ export const resetPassword = async (req, res) => {
         message: "User not found",
       });
     }
-
     // Check if OTP exists
-    if (!user.otp) {
+    if (String(user.otp) !== String(otp)) {
       return res.status(400).json({
         success: false,
-        message: "OTP not found. Please request a new OTP",
+        message: "Invalid OTP",
       });
     }
-
     // Check OTP expiry
     if (user.otpExpire < Date.now()) {
       return res.status(400).json({
@@ -306,7 +304,6 @@ export const resetPassword = async (req, res) => {
       success: true,
       message: "Password reset successfully",
     });
-
   } catch (error) {
     console.log(error);
 

@@ -13,6 +13,8 @@ import AdminBlogs from "./Pages/Admin/AdminBlogs";
 import Blogs from "./Pages/Blogs";
 import Footer from "./Components/Footer";
 import LikedBlogs from "./Pages/User/LikedBlogs";
+import ForgotPassword from "./Pages/User/ForgotPassword";
+import ResetPassword from "./Pages/User/ResetPassword";
 const App = () => {
   return (
     <div>
@@ -20,6 +22,8 @@ const App = () => {
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/blogdetails/:id" element={<Blogdetails />} />
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/liked" element={<LikedBlogs />} />
