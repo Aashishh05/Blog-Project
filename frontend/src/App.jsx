@@ -7,7 +7,7 @@ import Homepage from "./Pages/Homepage";
 import Blogdetails from "./Pages/Blogdetails";
 import BlogForm from "./Pages/Admin/BlogForm";
 import ProtectedRoutes from "./Components/ProtectedRoutes";
-import Admindashboard from "./Pages/Admin/Admindashboard";
+import AdminDashboard from "./Pages/Admin/AdminDashboard";
 import AddCategories from "./Pages/Admin/AddCategories";
 import AdminBlogs from "./Pages/Admin/AdminBlogs";
 import Blogs from "./Pages/Blogs";
@@ -31,7 +31,7 @@ const App = () => {
         <Route element={<ProtectedRoutes allowedRoles={["admin"]} />}>
           <Route path="/blogform" element={<BlogForm />} />
           <Route path="/blogform/:id" element={<BlogForm />} />
-          <Route path="/admin/dashboard" element={<Admindashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/categories" element={<AddCategories />} />
           <Route path="/admin/blogs" element={<AdminBlogs />} />
         </Route>
