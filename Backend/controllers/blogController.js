@@ -68,6 +68,8 @@ export const getAllBlogs = async (req, res) => {
 
       .populate("author", "fullName email")
 
+      .populate("category", "name")
+
       .sort({
         createdAt: -1,
       })
@@ -133,7 +135,9 @@ export const searchBlog = async (req, res) => {
           },
         },
       ],
-    });
+    })
+      .populate("author", "fullName email")
+      .populate("category", "name");
 
     res.status(200).json({
       success: true,
@@ -153,7 +157,8 @@ export const getBlogById = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id)
 
-      .populate("author", "fullName email");
+      .populate("author", "fullName email")
+      .populate("category", "name");
 
     if (!blog) {
       return res.status(404).json({
@@ -357,11 +362,18 @@ export const getLikedBlogs = async (req, res) => {
       .populate({
         path: "blog",
 
-        populate: {
-          path: "author",
+        populate: [
+          {
+            path: "author",
 
-          select: "fullName email",
-        },
+            select: "fullName email",
+          },
+          {
+            path: "category",
+
+            select: "name",
+          },
+        ],
       })
 
       .sort({
