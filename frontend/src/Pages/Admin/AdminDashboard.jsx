@@ -14,7 +14,7 @@ import {
 import Sidebar from "../../Components/Sidebar";
 import axios from "../../utils/axios";
 
-const AdminDashboard = () => {
+const Admindashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [blogs, setBlogs] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -411,4 +411,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default Admindashboard;
