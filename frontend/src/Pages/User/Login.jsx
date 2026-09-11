@@ -81,7 +81,7 @@ const Login = () => {
                     login({
                       user: loggedInUser,
                       token,
-                    }),
+                    }), 
                   );
                   setUser(loggedInUser);
                   setToken(token);
