@@ -217,7 +217,7 @@ const Login = () => {
 
             <p className="text-center text-slate-700 mt-6">
               Don&apos;t have an account?{" "}
-              <span className="text-blue-600 font-semibold hover:underline cursor-pointer">
+              <span className="text-blue-600 font-semibold hover:underline cursor-pointer" onClick={() => nav("/signup")}>
                 Sign up
               </span>
             </p>

@@ -26,24 +26,14 @@ export const registerUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const generateOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
     const newUser = await User.create({
       fullName,
       email,
       password: hashedPassword,
-      otp,
-      otpExpire: Date.now() + 10 * 60 * 1000,
       role: role || "user",
     });
 
-    await transporter.sendMail({
-      from: process.env.SMTP_SENDER,
-      to: email,
-      subject: "try this otp",
-      text: "this is your otp",
-      html: `${otp}`,
-    });
     return res.status(201).json({
       success: true,
       message: "User registered successfully",

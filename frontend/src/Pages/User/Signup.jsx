@@ -4,7 +4,15 @@ import { Formik } from "formik";
 import Navbar from "../../Components/Navbar";
 import axios from "axios";
 
-import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import {
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaCheckCircle,
+  FaExclamationCircle,
+} from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
 
 const SignupSchema = Yup.object().shape({
@@ -20,6 +28,8 @@ const SignupSchema = Yup.object().shape({
 const Signup = () => {
   const nav = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   return (
     <>
@@ -50,6 +60,20 @@ const Signup = () => {
               <h1 className="text-sm italic">TECHBLOG</h1>
             </div>
 
+            {successMsg && (
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg px-4 py-3 mb-5">
+                <FaCheckCircle className="flex-shrink-0" />
+                <span>{successMsg}</span>
+              </div>
+            )}
+
+            {errorMsg && (
+              <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-5">
+                <FaExclamationCircle className="flex-shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
             <Formik
               initialValues={{
                 fullName: "",
@@ -58,6 +82,8 @@ const Signup = () => {
               }}
               validationSchema={SignupSchema}
               onSubmit={async (values, { resetForm }) => {
+                setErrorMsg("");
+                setSuccessMsg("");
                 try {
                   const res = await axios.post(
                     `http://localhost:5000/api/auth/register`,
@@ -65,8 +91,21 @@ const Signup = () => {
                   );
                   console.log(res);
                   resetForm();
+                  setSuccessMsg(
+                    res.data.message ||
+                      "Account created successfully. Please log in.",
+                  );
+                  setTimeout(() => nav("/login"), 1000);
                 } catch (error) {
                   console.log("DATA:", error.response?.data);
+                  const serverMessage = error.response?.data?.message;
+                  if (!error.response) {
+                    setErrorMsg(
+                      "Unable to reach the server. Please try again later.",
+                    );
+                  } else {
+                    setErrorMsg(serverMessage || "Something went wrong. Please try again.");
+                  }
                 }
               }}
             >
