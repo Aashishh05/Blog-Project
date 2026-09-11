@@ -5,7 +5,7 @@ import mainRoutes from "./routes/mainRoutes.js";
 import cookieParser from "cookie-parser";
 import cloudinary from "./config/cloudinary.js";
 import cors from "cors";
-import path from "path"
+import path from "path";
 dotenv.config();
 
 connectDB();
@@ -14,7 +14,19 @@ const app = express();
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use(
   cors({
-    origin: `http://localhost:5173`,
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "https://blog-project-u4rd-dusky.vercel.app",
+        "https://blog-project-u4rd-git-main-aashish11.vercel.app",
+        "https://blog-project-u4rd-5csj6bkoj-aashish11.vercel.app",
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
