@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import { FaSearch } from "react-icons/fa";
-import axios from "axios";
+import axios from "../utils/axios";
 
 const Blogs = () => {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -32,9 +32,9 @@ const Blogs = () => {
     setLoading(true);
     try {
       const res_categories = await axios.get(
-        `http://localhost:5000/api/category/get`,
+        `/api/category/get`,
       );
-      const res_blogs = await axios.get(`http://localhost:5000/api/blog/get`);
+      const res_blogs = await axios.get(`/api/blog/get`);
 
       setCategory(res_categories.data.categories);
       setBlogs(res_blogs.data.blogs);
@@ -67,7 +67,7 @@ const Blogs = () => {
     debounceTimer.current = setTimeout(async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/blog/search?search=${query}`
+          `/api/blog/search?search=${query}`
         );
         setSearchResults(res.data.blogs || []);
         setShowDropdown(true);

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import Navbar from "../../Components/Navbar";
-import axios from "axios";
+import axios from "../../utils/axios";
 
 import {
   FaUser,
@@ -86,7 +86,7 @@ const Signup = () => {
                 setSuccessMsg("");
                 try {
                   const res = await axios.post(
-                    `http://localhost:5000/api/auth/register`,
+                    `/api/auth/register`,
                     values,
                   );
                   console.log(res);

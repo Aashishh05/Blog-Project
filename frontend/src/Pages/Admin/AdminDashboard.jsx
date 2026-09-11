@@ -12,7 +12,7 @@ import {
   FaTag,
 } from "react-icons/fa";
 import Sidebar from "../../Components/Sidebar";
-import axios from "axios";
+import axios from "../../utils/axios";
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -27,8 +27,8 @@ const AdminDashboard = () => {
     setError(null);
     try {
       const [blogsRes, categoriesRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/blog/get`),
-        axios.get(`http://localhost:5000/api/category/get`),
+        axios.get(`/api/blog/get`),
+        axios.get(`/api/category/get`),
       ]);
 
       setBlogs(blogsRes.data.blogs || []);
@@ -49,7 +49,7 @@ const AdminDashboard = () => {
 
     try {
       const res = await axios.delete(
-        `http://localhost:5000/api/blog/delete/${id}`,
+        `/api/blog/delete/${id}`,
         {
           withCredentials: true,
         },

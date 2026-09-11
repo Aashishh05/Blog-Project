@@ -3,7 +3,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { FaBars } from "react-icons/fa";
 import Sidebar from "../../Components/Sidebar";
-import axios from "axios";
+import axios from "../../utils/axios";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
@@ -32,7 +32,7 @@ const AddCategories = () => {
   const fetchCategory = async () => {
     try {
       const category_res = await axios.get(
-        `http://localhost:5000/api/category/get`,
+        `/api/category/get`,
         { withCredentials: true },
       );
 
@@ -46,7 +46,7 @@ const AddCategories = () => {
     try {
       if (edit) {
         const res = await axios.put(
-          `http://localhost:5000/api/category/update/${edit}`,
+          `/api/category/update/${edit}`,
           values,
           { withCredentials: true },
         );
@@ -58,7 +58,7 @@ const AddCategories = () => {
         setEdit(null);
       } else {
         const res = await axios.post(
-          "http://localhost:5000/api/category/create",
+          `/api/category/create`,
           values,
           { withCredentials: true },
         );
@@ -87,7 +87,7 @@ const AddCategories = () => {
 
     try {
       const res = await axios.delete(
-        `http://localhost:5000/api/category/delete/${id}`,
+        `/api/category/delete/${id}`,
         { withCredentials: true },
       );
 
@@ -104,7 +104,7 @@ const AddCategories = () => {
   const handleEdit = async (id) => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/category/get/${id}`,
+        `/api/category/get/${id}`,
         { withCredentials: true },
       );
       console.log(res.data);

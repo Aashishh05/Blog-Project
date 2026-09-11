@@ -5,7 +5,7 @@ import Navbar from "../../Components/Navbar";
 
 import { FaEnvelope } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import axios from "../../utils/axios";
 
 const ForgotPasswordSchema = Yup.object().shape({
   email: Yup.string()
@@ -59,7 +59,7 @@ const ForgotPassword = () => {
     setOtpLoading(true);
     try {
       await axios.post(
-        "http://localhost:5000/api/auth/verify-otp",
+        `/api/auth/verify-otp`,
         { email, otp: otpValue },
         { withCredentials: true },
       );
@@ -122,7 +122,7 @@ const ForgotPassword = () => {
                     setServerError("");
                     try {
                       await axios.post(
-                        "http://localhost:5000/api/auth/forgot-password",
+                        `/api/auth/forgot-password`,
                         values,
                         { withCredentials: true },
                       );

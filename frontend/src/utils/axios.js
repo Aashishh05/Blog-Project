@@ -1,0 +1,36 @@
+import axios from "axios";
+import toast from "react-hot-toast";
+
+export const API_URL = import.meta.env.VITE_BASE_URL;
+
+const API = axios.create({
+  baseURL: import.meta.env.VITE_BASE_URL,
+  withCredentials: true,
+});
+
+let unauthorizedHandler = null;
+export const setUnauthorizedHandler = (fn) => {
+  unauthorizedHandler = fn;
+};
+
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 429) {
+      toast.error(
+        error.response?.data?.message ||
+          "Too many requests. Please try again later.",
+      );
+      error._isHandled = true;
+    }
+
+    if (error.response?.status === 401) {
+      if (unauthorizedHandler) unauthorizedHandler();
+      error._isHandled = true;
+    }
+
+    return Promise.reject(error);
+  },
+);
+
+export default API;

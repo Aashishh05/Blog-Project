@@ -3,7 +3,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { FaBars } from "react-icons/fa";
 import Sidebar from "../../Components/Sidebar";
-import axios from "axios";
+import axios from "../../utils/axios";
 import { useNavigate, useParams } from "react-router-dom";
 
 const BlogSchema = Yup.object({
@@ -40,7 +40,7 @@ const BlogForm = () => {
 
   const fetchBlogById = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/blog/get/${id}`, {
+      const res = await axios.get(`/api/blog/get/${id}`, {
         withCredentials: true,
       });
 
@@ -74,7 +74,7 @@ const BlogForm = () => {
       }
       if (isEditMode) {
         const res = await axios.put(
-          `http://localhost:5000/api/blog/update/${id}`,
+          `/api/blog/update/${id}`,
           formData,
           {
             withCredentials: true,
@@ -87,7 +87,7 @@ const BlogForm = () => {
         nav(`/admin/blogs`);
       } else {
         const res = await axios.post(
-          `http://localhost:5000/api/blog/create`,
+          `/api/blog/create`,
           formData,
           {
             withCredentials: true,
@@ -108,7 +108,7 @@ const BlogForm = () => {
   const fetchCategory = async () => {
     try {
       const category_res = await axios.get(
-        `http://localhost:5000/api/category/get`,
+        `/api/category/get`,
         { withCredentials: true },
       );
       setCategory(category_res.data.categories);

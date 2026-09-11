@@ -12,7 +12,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { IoShareOutline } from "react-icons/io5";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
-import axios from "axios";
+import axios from "../utils/axios";
 
 const BlogDetail = () => {
   const [blog, setBlog] = useState(null);
@@ -34,7 +34,7 @@ console.log(id)
   setLoading(true);
   try {
     const res = await axios.get(
-      `http://localhost:5000/api/blog/get/${id}`,
+      `/api/blog/get/${id}`,
       {
         withCredentials: true,
       }
@@ -51,7 +51,7 @@ console.log(id)
   // Fetch all liked blogs
   const fetchLikedBlogs = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/likedblog/liked", {
+      const res = await axios.get(`/api/likedblog/liked`, {
         withCredentials: true,
       });
       const likedBlogIds = new Set((res.data.blogs || []).map((b) => b._id));
@@ -72,7 +72,7 @@ console.log(id)
     setLikeLoading(true);
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/likedblog/like/${id}`,
+        `/api/likedblog/like/${id}`,
         {},
         { withCredentials: true },
       );
@@ -111,7 +111,7 @@ console.log(id)
   const fetchComments = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/comments/blog/${id}`,
+        `/api/comments/blog/${id}`,
         { withCredentials: true },
       );
       setComments(res.data.comments);
@@ -133,7 +133,7 @@ console.log(id)
     setCommentLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/comments/create",
+        `/api/comments/create`,
         { blogId: id, comment: newComment },
         { withCredentials: true },
       );
@@ -162,7 +162,7 @@ console.log(id)
     if (!editText.trim()) return;
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/comments/update/${commentId}`,
+        `/api/comments/update/${commentId}`,
         { comment: editText },
         { withCredentials: true },
       );
@@ -184,7 +184,7 @@ console.log(id)
     if (!window.confirm("Are you sure you want to delete this comment?")) return;
     try {
       await axios.delete(
-        `http://localhost:5000/api/comments/delete/${commentId}`,
+        `/api/comments/delete/${commentId}`,
         { withCredentials: true },
       );
       setComments((prev) => prev.filter((c) => c._id !== commentId));

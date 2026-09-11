@@ -1,4 +1,5 @@
-import axios from "axios";
+import axios from "../../utils/axios";
+import { API_URL } from "../../utils/axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -11,7 +12,7 @@ const Homepage = () => {
 
   const blogfetch = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/getblog", { withCredentials: true });
+      const res = await axios.get(`/api/getblog`, { withCredentials: true });
       setBlogs(res.data.blog);
     } catch (error) {
       console.log(error);
@@ -20,7 +21,7 @@ const Homepage = () => {
 
   const categoryfetch = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/getdata", { withCredentials: true });
+      const res = await axios.get(`/api/getdata`, { withCredentials: true });
       setCategories(res.data.category);
     } catch (error) {
       console.log(error);
@@ -169,7 +170,7 @@ const Homepage = () => {
                   className="lg:row-span-2 group rounded-3xl overflow-hidden relative block bg-slate-900 min-h-[360px] hover:shadow-xl transition-shadow duration-300"
                 >
                   <img
-                    src={`http://localhost:4000/uploads/${featuredBlog.image}`}
+                    src={`${API_URL}/uploads/${featuredBlog.image}`}
                     alt={featuredBlog.title}
                     className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-500"
                   />
@@ -203,7 +204,7 @@ const Homepage = () => {
                   >
                     <div className="w-36 flex-shrink-0 overflow-hidden bg-slate-100">
                       <img
-                        src={`http://localhost:4000/uploads/${item.image}`}
+                        src={`${API_URL}/uploads/${item.image}`}
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400"
                       />
@@ -257,7 +258,7 @@ const Homepage = () => {
                   >
                     <div className="overflow-hidden bg-slate-100 h-48">
                       <img
-                        src={`http://localhost:4000/uploads/${item.image}`}
+                        src={`${API_URL}/uploads/${item.image}`}
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />

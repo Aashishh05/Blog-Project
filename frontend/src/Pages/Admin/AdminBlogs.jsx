@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Sidebar from "../../Components/Sidebar";
 import { FaBars, FaSearch } from "react-icons/fa";
-import axios from "axios";
+import axios from "../../utils/axios";
 
 const AdminBlogs = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -23,8 +23,8 @@ const AdminBlogs = () => {
     setError(null);
     try {
       const [categoryRes, blogsRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/category/get"),
-        axios.get("http://localhost:5000/api/blog/get", {
+        axios.get(`/api/category/get`),
+        axios.get(`/api/blog/get`, {
           withCredentials: true,
         }),
       ]);
@@ -63,7 +63,7 @@ const AdminBlogs = () => {
     debounceTimer.current = setTimeout(async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/blog/search?search=${query}`
+          `/api/blog/search?search=${query}`
         );
         setSearchResults(res.data.blogs || []);
         setShowDropdown(true);
@@ -93,7 +93,7 @@ const AdminBlogs = () => {
 
     try {
       const res = await axios.delete(
-        `http://localhost:5000/api/blog/delete/${id}`,
+        `/api/blog/delete/${id}`,
         { withCredentials: true }
       );
 

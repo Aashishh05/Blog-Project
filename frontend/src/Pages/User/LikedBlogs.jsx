@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../utils/axios";
 import { Link } from "react-router-dom";
 import { FaRegHeart, FaHeart } from "react-icons/fa6";
 import Navbar from "../../Components/Navbar";
@@ -19,7 +19,7 @@ const LikedBlogs = () => {
       setLoading(true);
       setError("");
 
-      const res = await axios.get("http://localhost:5000/api/likedblog/liked", {
+      const res = await axios.get(`/api/likedblog/liked`, {
         withCredentials: true,
       });
 
@@ -48,7 +48,7 @@ const LikedBlogs = () => {
 
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/likedblog/like/${blogId}`,
+        `/api/likedblog/like/${blogId}`,
         {},
         { withCredentials: true }
       );

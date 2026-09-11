@@ -6,7 +6,7 @@ import Navbar from "../../Components/Navbar";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaExclamationCircle } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import axios from "../../utils/axios";
 import { useDispatch } from "react-redux";
 import { login } from "../../redux/authSlice";
 import { setToken, setUser } from "../../Localstorage/storage";
@@ -69,7 +69,7 @@ const Login = () => {
                 setLoginError("");
                 try {
                   const res = await axios.post(
-                    "http://localhost:5000/api/auth/login",
+                    `/api/auth/login`,
                     values,
                     { withCredentials: true },
                   );
