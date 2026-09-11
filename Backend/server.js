@@ -17,12 +17,16 @@ app.use(
     origin: (origin, callback) => {
       const allowedOrigins = [
         "http://localhost:5173",
-        "https://blog-project-u4rd-dusky.vercel.app",
-        "https://blog-project-u4rd-git-main-aashish11.vercel.app",
-        "https://blog-project-u4rd-6ehmykmw0-aashish11.vercel.app",
+        "https://blog-project-aashish11.vercel.app",
+        "https://blog-project-git-main-aashish11.vercel.app",
+        "https://blog-project-1v3ub8l65-aashish11.vercel.app",
       ];
 
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)
+      ) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
